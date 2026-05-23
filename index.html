@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SatsKids ⚡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0d1a;--bg2:#13132a;--bg3:#1a1a36;--card:#1e1e40;--card2:#252550;
+  --accent:#f7931a;--accent2:#ffc107;--glow:#f7931a44;
+  --green:#00e676;--green2:#00c853;--red:#ff5252;--blue:#448aff;--purple:#e040fb;
+  --text:#f0f0ff;--text2:#9090bb;--text3:#5555aa;
+  --radius:18px;--radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.page-wrap{width:100%;max-width:580px;display:flex;flex-direction:column;padding:0 20px;}
+.page-wrap{width:100%;max-width:580px;display:flex;flex-direction:column;}
+.page-wrap{width:100%;max-width:580px;display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;background-image:
+  radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,.4) 0%,transparent 100%),
+  radial-gradient(1px 1px at 30% 60%,rgba(255,255,255,.3) 0%,transparent 100%),
+  radial-gradient(1px 1px at 50% 10%,rgba(255,255,255,.5) 0%,transparent 100%),
+  radial-gradient(1px 1px at 70% 80%,rgba(255,255,255,.2) 0%,transparent 100%),
+  radial-gradient(1px 1px at 85% 35%,rgba(255,255,255,.4) 0%,transparent 100%),
+  radial-gradient(1px 1px at 15% 75%,rgba(255,255,255,.3) 0%,transparent 100%),
+  radial-gradient(1px 1px at 60% 50%,rgba(255,255,255,.2) 0%,transparent 100%),
+  radial-gradient(1px 1px at 92% 15%,rgba(255,255,255,.4) 0%,transparent 100%);
+  pointer-events:none;z-index:0;}
+.screen{display:none;min-height:100vh;position:relative;z-index:1;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* HOME */
+#home{align-items:center;padding:40px 20px;gap:16px;}
+.logo-area{text-align:center;margin-bottom:28px;animation:fadeDown .6s ease;}
+.logo-bolt{font-size:52px;display:block;animation:pulse-bolt 2s ease-in-out infinite;filter:drop-shadow(0 0 20px var(--accent));}
+@keyframes pulse-bolt{0%,100%{transform:scale(1);filter:drop-shadow(0 0 20px var(--accent));}50%{transform:scale(1.08);filter:drop-shadow(0 0 35px var(--accent2));}}
+.logo-title{font-size:34px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px;}
+.logo-sub{font-size:13px;color:var(--text2);margin-top:4px;font-weight:600;letter-spacing:2px;text-transform:uppercase;}
+.kids-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;width:100%;max-width:500px;animation:fadeUp .5s ease .2s both;}
+.kid-card{width:150px;flex-shrink:0;}
+.kid-card{background:var(--card);border-radius:var(--radius);padding:20px 14px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .25s ease;position:relative;overflow:hidden;}
+.kid-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,var(--glow),transparent 70%);opacity:0;transition:opacity .25s;}
+.kid-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+.kid-card:hover::before{opacity:1;}
+.kid-avatar{font-size:44px;display:block;margin-bottom:8px;transition:transform .2s;}
+.kid-card:hover .kid-avatar{transform:scale(1.15) rotate(-5deg);}
+.kid-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.kid-balance{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);font-weight:700;}
+.kid-sats-small{font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* parent wallet card */
+.parent-wallet-card{background:linear-gradient(135deg,#1a1040,#2a1060);border:1px solid #7c3aed44;border-radius:var(--radius);padding:16px 20px;width:100%;max-width:480px;cursor:pointer;transition:all .2s;animation:fadeUp .5s ease .3s both;}
+.parent-wallet-card:hover{border-color:#7c3aed88;transform:translateY(-2px);}
+.pw-label{font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.pw-balance{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#c4b5fd;}
+.pw-fiat{font-size:13px;color:#7c3aed;margin-top:2px;font-weight:600;}
+
+.add-kid-btn{background:var(--bg3);border:2px dashed var(--text3);border-radius:var(--radius);padding:20px 14px;text-align:center;cursor:pointer;transition:all .25s;color:var(--text3);font-family:'Nunito',sans-serif;}
+.add-kid-btn:hover{border-color:var(--accent);color:var(--accent);}
+.add-icon{font-size:32px;display:block;}
+.btc-ticker{background:var(--bg3);border-radius:40px;padding:10px 20px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;animation:fadeUp .5s ease .4s both;width:fit-content;}
+.btc-ticker-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.ticker-price{font-family:'Space Mono',monospace;color:var(--accent);font-weight:700;}
+.ticker-change{font-weight:700;}
+.ticker-change.up{color:var(--green);}
+.ticker-change.down{color:var(--red);}
+.bottom-nav{display:flex;gap:8px;width:100%;max-width:480px;animation:fadeUp .5s ease .5s both;justify-content:center;}
+.nav-btn{flex:1;background:var(--bg3);border:1px solid var(--text3);border-radius:12px;padding:10px 8px;color:var(--text2);font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;text-align:center;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+.mode-toggle{display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;color:var(--text2);animation:fadeUp .5s ease .5s both;}
+.toggle-switch{width:44px;height:24px;background:var(--bg3);border-radius:12px;position:relative;cursor:pointer;border:1px solid var(--text3);transition:background .2s;}
+.toggle-switch.on{background:var(--accent);border-color:var(--accent);}
+.toggle-knob{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:white;transition:transform .2s;}
+.toggle-switch.on .toggle-knob{transform:translateX(20px);}
+
+/* KID SCREEN */
+.kid-header{background:linear-gradient(180deg,var(--bg2) 0%,transparent 100%);padding:16px 20px 0;position:sticky;top:0;z-index:10;}
+#kid-screen,#learn-screen,#parent-wallet-screen{align-items:center;}
+#kid-screen > *,#learn-screen > *,#parent-wallet-screen > *{width:100%;max-width:600px;}
+.balance-display{margin:0 0 20px;}
+.kid-tabs{margin:0 0 16px;}
+.tab-content{padding:0 0 120px;}
+.back-btn{background:none;border:none;color:var(--text2);font-size:14px;font-family:'Nunito',sans-serif;cursor:pointer;padding:8px 0;display:flex;align-items:center;gap:6px;font-weight:600;transition:color .2s;}
+.back-btn:hover{color:var(--accent);}
+.kid-hero{text-align:center;padding:24px 20px 20px;}
+.kid-hero-avatar{font-size:64px;display:block;margin-bottom:8px;}
+.kid-hero-name{font-size:28px;font-weight:900;}
+.balance-display{margin:0 20px 20px;background:var(--card);border-radius:var(--radius);padding:22px;border:1px solid var(--bg3);position:relative;overflow:hidden;}
+.balance-display::before{content:'₿';position:absolute;right:-10px;top:-20px;font-size:100px;color:var(--glow);font-weight:900;pointer-events:none;}
+.balance-sats{font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:var(--accent);display:flex;align-items:baseline;gap:8px;}
+.balance-unit{font-size:16px;color:var(--text2);}
+.balance-fiat{font-size:18px;color:var(--text2);margin-top:4px;font-weight:600;}
+.balance-btc{font-family:'Space Mono',monospace;font-size:11px;color:var(--text3);margin-top:2px;}
+.kid-tabs{display:flex;margin:0 20px 16px;background:var(--bg3);border-radius:12px;padding:4px;gap:4px;overflow-x:auto;}
+.kid-tab{flex:1;min-width:52px;padding:8px 6px;border-radius:8px;border:none;background:none;color:var(--text2);font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.kid-tab.active{background:var(--card2);color:var(--accent);}
+.tab-content{display:none;padding:0 20px 120px;}
+.tab-content.active{display:block;}
+.section-title{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;}
+.chore-item{background:var(--card);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;border:1px solid transparent;transition:all .2s;cursor:pointer;}
+.chore-item.done{border-color:var(--green2);background:rgba(0,200,83,.08);}
+.chore-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--text3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:14px;}
+.chore-item.done .chore-check{background:var(--green2);border-color:var(--green2);color:white;}
+.chore-name{flex:1;font-weight:600;font-size:15px;}
+.chore-item.done .chore-name{text-decoration:line-through;color:var(--text2);}
+.chore-sats{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);}
+.chore-item.done .chore-sats{color:var(--green);}
+
+/* PAY BAR - invoice flow */
+.pay-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:640px;padding:16px 20px 24px;background:linear-gradient(0deg,var(--bg) 60%,transparent);z-index:20;display:none;flex-direction:column;align-items:stretch;}
+.pay-btn{width:100%;border:none;border-radius:var(--radius);padding:18px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;position:relative;overflow:hidden;}
+.pay-btn.stage-generate{background:linear-gradient(135deg,#b45309,#d97706);color:#fff8e1;border:none;box-shadow:0 4px 20px rgba(217,119,6,.4);}
+.pay-btn.stage-generate:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(217,119,6,.6);}
+.pay-btn.stage-invoice{background:linear-gradient(135deg,#1a1040,#3a1080);color:#c4b5fd;border:2px solid #7c3aed;box-shadow:0 0 24px #7c3aed44;animation:invoice-pulse 1.5s ease-in-out infinite;}
+@keyframes invoice-pulse{0%,100%{box-shadow:0 0 24px #7c3aed44;}50%{box-shadow:0 0 40px #7c3aed88;}}
+.pay-btn.stage-pay{background:linear-gradient(135deg,#00c853,#00e676);color:#001a0a;box-shadow:0 4px 24px rgba(0,200,83,.5);}
+.pay-btn.stage-pay:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,200,83,.7);}
+.pay-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;animation:none;}
+.invoice-box{background:linear-gradient(135deg,#0a0820,#150d40);border:1px solid #7c3aed44;border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:8px;display:none;}
+.invoice-box.active{display:block;}
+.invoice-qr-fake{width:80px;height:80px;margin:0 auto 8px;background:white;border-radius:6px;display:grid;grid-template-columns:repeat(7,1fr);gap:1px;padding:6px;overflow:hidden;}
+.qr-cell{border-radius:1px;}
+.invoice-id{font-family:'Space Mono',monospace;font-size:9px;color:#7c3aed;text-align:center;word-break:break-all;opacity:.7;}
+.invoice-amount-label{font-size:12px;color:#a78bfa;text-align:center;margin-bottom:4px;font-weight:700;}
+
+/* SPEND */
+.spend-card{background:var(--card);border-radius:var(--radius);padding:18px;margin-bottom:12px;border:1px solid var(--bg3);}
+.spend-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.spend-card-name{font-weight:700;font-size:15px;}
+.spend-card-sats{font-family:'Space Mono',monospace;font-size:14px;color:var(--red);font-weight:700;}
+.spend-card-desc{font-size:12px;color:var(--text3);}
+.add-spend-section{margin-top:16px;}
+
+/* GOALS */
+.goal-card{background:var(--card);border-radius:var(--radius);padding:18px;margin-bottom:12px;border:1px solid var(--bg3);}
+.goal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.goal-name{font-size:16px;font-weight:700;}
+.goal-amounts{font-family:'Space Mono',monospace;font-size:12px;color:var(--text2);margin-bottom:10px;}
+.goal-sats-needed{color:var(--accent);font-weight:700;}
+.progress-bar{height:10px;background:var(--bg3);border-radius:5px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .8s cubic-bezier(.34,1.56,.64,1);position:relative;}
+.progress-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4));animation:shimmer 2s infinite;}
+@keyframes shimmer{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
+.goal-progress-label{font-size:12px;color:var(--text2);margin-top:6px;text-align:right;font-weight:600;}
+.goal-btn-row{display:flex;gap:8px;margin-top:12px;}
+.goal-spend-btn{flex:1;background:rgba(255,82,82,.1);border:1px solid var(--red);border-radius:var(--radius-sm);padding:10px;color:var(--red);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.goal-spend-btn:hover{background:rgba(255,82,82,.2);}
+.add-goal-btn{width:100%;background:var(--bg3);border:2px dashed var(--text3);border-radius:var(--radius);padding:16px;color:var(--text3);font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;}
+.add-goal-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* HISTORY */
+.tx-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg3);}
+.tx-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.tx-icon.earn{background:rgba(0,230,118,.15);}
+.tx-icon.spend{background:rgba(255,82,82,.15);}
+.tx-desc{flex:1;}
+.tx-desc-name{font-weight:600;font-size:14px;}
+.tx-desc-date{font-size:11px;color:var(--text3);margin-top:2px;}
+.tx-amount{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;}
+.tx-amount.earn{color:var(--green);}
+.tx-amount.spend{color:var(--red);}
+
+/* INVEST */
+.invest-card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:12px;}
+.invest-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bg3);}
+.invest-row:last-child{border-bottom:none;}
+.invest-label{color:var(--text2);font-size:14px;}
+.invest-value{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;}
+.invest-value.up{color:var(--green);}
+.invest-value.down{color:var(--red);}
+.proj-title{font-size:14px;font-weight:700;color:var(--text);margin:16px 0 10px;}
+.proj-card{background:var(--bg3);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.proj-year{font-weight:700;color:var(--text2);font-size:14px;}
+.proj-vals{text-align:right;}
+.proj-sats{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);font-weight:700;}
+.proj-fiat{font-size:12px;color:var(--text3);}
+
+/* LEARN */
+.learn-card{background:var(--card);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;cursor:pointer;border:1px solid var(--bg3);transition:all .2s;}
+.learn-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.learn-card-header{padding:16px 20px;display:flex;align-items:center;gap:14px;}
+.learn-card-icon{font-size:36px;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;line-height:1;}
+.learn-card-title{font-size:17px;font-weight:700;}
+.learn-card-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+.learn-card-body{padding:0 20px 20px;display:none;border-top:1px solid var(--bg3);margin-top:0;padding-top:16px;}
+.learn-card-body.open{display:block;}
+.onboard-step{animation:fadeUp .3s ease;}
+.learn-text{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:12px;}
+.learn-text strong{color:var(--text);}
+.learn-anim{background:var(--bg3);border-radius:var(--radius-sm);padding:20px;margin:12px 0;text-align:center;min-height:100px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+.learn-anim-placeholder{font-size:32px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.learn-fact{background:rgba(247,147,26,.1);border-left:3px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 14px;margin:8px 0;font-size:13px;color:var(--text);}
+
+/* PARENT WALLET SCREEN */
+#parent-wallet-screen{flex-direction:column;}
+.pw-screen-balance{margin:0 20px 20px;background:linear-gradient(135deg,#1a1040,#2a1060);border-radius:var(--radius);padding:28px;border:1px solid #7c3aed44;position:relative;overflow:hidden;}
+.pw-screen-balance::before{content:'👑';position:absolute;right:16px;top:16px;font-size:48px;opacity:.3;}
+.pw-screen-sats{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;color:#c4b5fd;}
+.pw-screen-fiat{font-size:20px;color:#a78bfa;margin-top:6px;font-weight:600;}
+.pw-screen-btc{font-family:'Space Mono',monospace;font-size:11px;color:#7c3aed;margin-top:4px;}
+.pw-info{margin:0 20px 20px;background:var(--bg3);border-radius:var(--radius-sm);padding:16px;font-size:13px;color:var(--text2);line-height:1.6;}
+
+/* PAYMENT OVERLAY */
+#pay-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
+#pay-overlay.active{display:flex;}
+.pay-stage-connecting{position:relative;z-index:5;text-align:center;}
+.pay-stage-connecting .connect-anim{font-size:14px;color:#7c3aed;font-family:'Space Mono',monospace;margin-bottom:16px;animation:type-blink 1s step-end infinite;}
+@keyframes type-blink{50%{opacity:0}}
+.pay-route-line{display:flex;align-items:center;gap:8px;margin:12px 0;justify-content:center;font-size:22px;}
+.pay-route-hop{animation:hop-bounce .6s ease infinite alternate;}
+@keyframes hop-bounce{from{transform:translateY(0);}to{transform:translateY(-6px);}}
+.pay-anim-ring{position:absolute;border-radius:50%;border:2px solid var(--accent);animation:ring-expand 1.5s ease-out infinite;opacity:0;}
+.pay-anim-ring:nth-child(2){animation-delay:.3s;}
+.pay-anim-ring:nth-child(3){animation-delay:.6s;}
+@keyframes ring-expand{0%{width:80px;height:80px;opacity:.8;}100%{width:500px;height:500px;opacity:0;}}
+.pay-anim-center{position:relative;z-index:5;text-align:center;}
+.pay-anim-bolt{font-size:80px;display:block;animation:bolt-pop .4s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes bolt-pop{0%{transform:scale(0) rotate(-30deg);opacity:0;}100%{transform:scale(1) rotate(0deg);opacity:1;}}
+.pay-anim-amount{font-family:'Space Mono',monospace;font-size:48px;font-weight:700;color:var(--accent);animation:amount-slide .5s ease .3s both;display:block;}
+@keyframes amount-slide{0%{transform:translateY(20px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
+.pay-anim-label{font-size:20px;font-weight:700;color:var(--text);animation:amount-slide .5s ease .5s both;margin-top:8px;}
+.pay-anim-sub{font-size:14px;color:var(--text2);animation:amount-slide .5s ease .7s both;margin-top:6px;}
+.sat-particle{position:absolute;font-size:22px;animation:sat-fall 1.2s ease-in both;pointer-events:none;}
+@keyframes sat-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(360deg);opacity:0;}}
+
+/* SPEND OVERLAY */
+#spend-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:80;display:none;align-items:center;justify-content:center;padding:20px;}
+#spend-overlay.active{display:flex;}
+.spend-modal{background:var(--bg2);border-radius:24px;padding:28px;width:100%;max-width:420px;animation:sheet-up .3s ease;}
+.spend-overlay-title{font-size:20px;font-weight:900;margin-bottom:20px;text-align:center;}
+
+/* BADGES */
+.streak-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#ff9800,#ff5722);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;color:white;margin-bottom:16px;}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.badge{background:var(--bg3);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:5px;}
+.badge.earned{background:rgba(247,147,26,.15);color:var(--accent);border:1px solid var(--glow);}
+.streak-flame{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;animation:fadeUp .4s ease;}
+.flame-emoji{font-size:calc(28px * var(--sz,1));animation:flame-flicker 1.2s ease-in-out infinite;filter:drop-shadow(0 0 8px #ff6b0088);line-height:1;}
+@keyframes flame-flicker{0%,100%{transform:scale(1) rotate(-2deg);}33%{transform:scale(1.08) rotate(2deg);}66%{transform:scale(.96) rotate(-1deg);}}
+.flame-label{font-size:14px;font-weight:900;color:#ff8c00;text-shadow:0 0 12px #ff6b0066;}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);padding:0;}
+#onboarding-modal{align-items:center;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal-sheet{background:var(--bg2);border-radius:24px 24px 0 0;padding:24px 24px 40px;width:100%;max-width:480px;animation:sheet-up .35s cubic-bezier(.34,1.2,.64,1);max-height:90vh;overflow-y:auto;}
+@keyframes sheet-up{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-title{font-size:20px;font-weight:900;margin-bottom:20px;text-align:center;}
+.modal-handle{width:40px;height:4px;background:var(--text3);border-radius:2px;margin:0 auto 20px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--text3);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;outline:none;transition:border-color .2s;}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.emoji-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.emoji-opt{width:44px;height:44px;border-radius:10px;border:2px solid transparent;background:var(--bg3);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.emoji-opt.selected{border-color:var(--accent);background:var(--glow);}
+.modal-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);padding:16px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;color:#0d0d1a;cursor:pointer;margin-top:8px;transition:all .2s;}
+.modal-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--glow);}
+.modal-btn-sec{width:100%;background:transparent;border:1px solid var(--text3);border-radius:var(--radius);padding:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--text2);cursor:pointer;margin-top:8px;transition:all .2s;}
+.modal-btn-sec:hover{border-color:var(--text);color:var(--text);}
+.modal-btn-red{width:100%;background:rgba(255,82,82,.15);border:1px solid var(--red);border-radius:var(--radius);padding:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--red);cursor:pointer;margin-top:8px;transition:all .2s;}
+.modal-btn-red:hover{background:rgba(255,82,82,.25);}
+.del-btn{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;padding:2px 4px;line-height:1;}
+.info-box{background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-bottom:16px;font-size:13px;color:var(--text2);}
+
+/* PIN */
+.pin-dots{display:flex;gap:14px;justify-content:center;margin:24px 0;}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--text3);transition:all .15s;}
+.pin-dot.filled{background:var(--accent);border-color:var(--accent);}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto;}
+.pin-key{background:var(--bg3);border:1px solid var(--text3);border-radius:14px;padding:18px;font-size:22px;font-weight:700;font-family:'Nunito',sans-serif;color:var(--text);cursor:pointer;transition:all .15s;text-align:center;}
+.pin-key:hover{background:var(--card);border-color:var(--accent);}
+.pin-key:active{transform:scale(.94);}
+.pin-error{color:var(--red);font-size:13px;text-align:center;height:20px;font-weight:600;}
+
+/* MISC */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3);}
+.empty-state-icon{font-size:40px;display:block;margin-bottom:12px;}
+.empty-state-text{font-weight:600;font-size:15px;}
+@keyframes fadeDown{from{transform:translateY(-20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes fadeUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.chg-green{color:var(--green)!important;} .chg-red{color:var(--red)!important;}
+
+/* fake QR pattern */
+.qr-cell.b{background:#000;} .qr-cell.w{background:#fff;}
+</style>
+</head>
+<body>
+
+<!-- ===== HOME ===== -->
+<div id="home" class="screen active">
+  <div class="logo-area">
+    <span class="logo-bolt">⚡</span>
+    <div class="logo-title">SatsKids</div>
+    <div class="logo-sub">Learn · Save · Stack</div>
+  </div>
+  <div class="kids-grid" id="kids-grid"></div>
+  <div class="parent-wallet-card" onclick="openParentWallet()" id="parent-wallet-home" style="display:none;">
+    <div class="pw-label">👑 Parent wallet (demo)</div>
+    <div class="pw-balance" id="pw-home-sats">10,000,000 sats</div>
+    <div class="pw-fiat" id="pw-home-fiat">Loading…</div>
+  </div>
+  <div class="btc-ticker" id="btc-ticker">
+    <div class="btc-ticker-dot"></div>
+    <span class="ticker-label">BTC</span>
+    <span class="ticker-price" id="ticker-price">Loading…</span>
+    <span class="ticker-change" id="ticker-change"></span>
+  </div>
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="openLearnScreen()">📚 Learn</button>
+    <button class="nav-btn" onclick="openParentWallet()">👑 Parent wallet</button>
+    <button class="nav-btn" onclick="openSettings()">⚙️ Settings</button>
+  </div>
+  <div class="mode-toggle">
+    <span>Parent mode</span>
+    <div class="toggle-switch" id="parent-toggle" onclick="requestParentMode()">
+      <div class="toggle-knob"></div>
+    </div>
+    <span id="parent-mode-label" style="color:var(--text3)">Off</span>
+  </div>
+</div>
+
+<!-- ===== KID SCREEN ===== -->
+<div id="kid-screen" class="screen">
+  <div class="kid-header">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+  </div>
+  <div class="kid-hero">
+    <span class="kid-hero-avatar" id="kid-hero-avatar">🦊</span>
+    <div class="kid-hero-name" id="kid-hero-name">Name</div>
+    <div class="badge-row" id="kid-badges" style="justify-content:center;margin-top:8px;"></div>
+    <div id="delete-kid-btn" style="display:none;margin-top:8px;">
+      <button onclick="deleteKid()" style="background:none;border:1px solid var(--red);border-radius:20px;padding:5px 14px;color:var(--red);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">✕ Remove kid</button>
+    </div>
+  </div>
+  <div class="balance-display">
+    <div class="balance-sats"><span id="kid-balance-sats">0</span><span class="balance-unit">sats</span></div>
+    <div class="balance-fiat" id="kid-balance-fiat">£0.00</div>
+    <div class="balance-btc" id="kid-balance-btc">0.00000000 BTC</div>
+  </div>
+  <div class="kid-tabs">
+    <button class="kid-tab active" onclick="showTab('chores')">⚡ Tasks</button>
+    <button class="kid-tab" onclick="showTab('goals')">🎯 Goals</button>
+    <button class="kid-tab" onclick="showTab('spend')">💸 Spend</button>
+    <button class="kid-tab" onclick="showTab('history')">📜 History</button>
+    <button class="kid-tab" onclick="showTab('invest')">📈 Stack</button>
+  </div>
+  <div class="tab-content active" id="tab-chores">
+    <div class="section-title">This week's tasks</div>
+    <div id="chore-list"></div>
+    <div id="parent-chore-controls" style="display:none;margin-top:16px;">
+      <button class="add-goal-btn" onclick="openAddChoreModal()">+ Add a task</button>
+      <button class="add-goal-btn" onclick="resetWeek()" style="margin-top:8px;border-color:var(--red);color:var(--red);">🗓️ Reset week (clear completed)</button>
+    </div>
+  </div>
+  <div class="tab-content" id="tab-goals">
+    <div class="section-title">Saving for</div>
+    <div id="goals-list"></div>
+    <button class="add-goal-btn" onclick="openAddGoalModal()" style="margin-top:4px;">+ Add a savings goal</button>
+    <div style="margin-top:20px;background:var(--bg3);border-radius:var(--radius-sm);padding:16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">⏳ How many weeks to reach a goal?</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Enter any target and weekly earnings to find out</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input type="number" id="savings-calc-target" placeholder="Target sats" style="flex:1;background:var(--bg2);border:1px solid var(--text3);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;outline:none;min-width:0;" oninput="calcSavingsWeeks()">
+        <input type="number" id="savings-calc-weekly" placeholder="Sats/week" style="flex:1;background:var(--bg2);border:1px solid var(--text3);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;outline:none;min-width:0;" oninput="calcSavingsWeeks()">
+      </div>
+      <div id="savings-calc-result" style="font-size:13px;color:var(--accent);font-weight:600;min-height:18px;"></div>
+    </div>
+  </div>
+  <div class="tab-content" id="tab-spend">
+    <div class="section-title">Things I've bought</div>
+    <div id="spend-list"></div>
+    <div class="add-spend-section">
+      <div class="section-title" style="margin-top:8px;">Spend sats (ad-hoc)</div>
+      <button class="add-goal-btn" onclick="openAdHocSpendModal()">💸 Record a purchase</button>
+    </div>
+  </div>
+  <div class="tab-content" id="tab-history">
+    <div class="section-title">Transaction history</div>
+    <div id="history-list"></div>
+  </div>
+  <div class="tab-content" id="tab-invest">
+    <div class="section-title">Bitcoin stacking tracker</div>
+    <div class="invest-card" id="invest-card">
+      <div class="invest-row"><span class="invest-label">Total earned (all time)</span><span class="invest-value" id="inv-total-earned">—</span></div>
+      <div class="invest-row"><span class="invest-label">Current balance</span><span class="invest-value" id="inv-balance">—</span></div>
+      <div class="invest-row"><span class="invest-label">Worth today</span><span class="invest-value" id="inv-worth-today">—</span></div>
+      <div class="invest-row"><span class="invest-label">Worth when first earned</span><span class="invest-value" id="inv-worth-then">—</span></div>
+      <div class="invest-row"><span class="invest-label">Gain / Loss vs then</span><span class="invest-value" id="inv-gain">—</span></div>
+      <div class="invest-row"><span class="invest-label">BTC price today</span><span class="invest-value" id="inv-price-now">—</span></div>
+    </div>
+    <div class="proj-title">🔮 Future projections (25% / yr growth)</div>
+    <div id="proj-list"></div>
+    <div style="padding:12px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);line-height:1.6;margin-top:4px;">
+      ⚠️ <strong style="color:var(--text)">These are just for fun!</strong> Nobody knows what Bitcoin will be worth. Prices go up AND down. The real lesson is: the earlier you save, the more time your money has to grow.
+    </div>
+    <div style="margin-top:12px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);line-height:1.6;">
+      💡 <strong style="color:var(--text)">Why does the value change?</strong> Your sats stay the same, but Bitcoin's price goes up and down every day. This is what makes it exciting, and why people say "stack sats and wait"!
+    </div>
+  </div>
+  <div class="pay-bar" id="pay-bar">
+    <div class="invoice-box" id="invoice-box">
+      <div class="invoice-amount-label" id="invoice-amount-label">Invoice for 0 sats</div>
+      <div class="invoice-qr-fake" id="invoice-qr"></div>
+      <div class="invoice-id" id="invoice-id-text">lnbc…</div>
+    </div>
+    <button class="pay-btn stage-generate" id="pay-btn" onclick="handlePayBtn()">📋 Generate invoice</button>
+  </div>
+</div>
+
+<!-- ===== LEARN SCREEN ===== -->
+<div id="learn-screen" class="screen">
+  <div style="width:100%;max-width:600px;padding:16px 20px 0;">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+  </div>
+  <div style="width:100%;max-width:600px;padding:16px 20px 40px;">
+    <div style="font-size:24px;font-weight:900;margin-bottom:4px;">📚 Bitcoin School</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Learn how Bitcoin works, in plain English</div>
+    <div id="learn-cards"></div>
+  </div>
+</div>
+
+<!-- ===== PARENT WALLET SCREEN ===== -->
+<div id="parent-wallet-screen" class="screen">
+  <div class="kid-header">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+  </div>
+  <div style="padding:0 20px 12px;">
+    <div style="font-size:24px;font-weight:900;margin-bottom:4px;">👑 Parent Wallet</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Demo: showing what a bigger stack looks like</div>
+  </div>
+  <div class="pw-screen-balance" style="margin:0 20px 20px;">
+    <div style="font-size:11px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Balance</div>
+    <div class="pw-screen-sats" id="pw-hero-sats">10,000,000 sats</div>
+    <div class="pw-screen-fiat" id="pw-hero-fiat">Loading…</div>
+    <div class="pw-screen-btc" id="pw-hero-btc">0.10000000 BTC</div>
+  </div>
+  <div class="pw-info">
+    💡 <strong style="color:var(--text)">Why show this?</strong> So you can see what a bigger stack of sats looks like in real money. 0.1 BTC is called "a tenth of a Bitcoin". Some people save for years to own a whole Bitcoin (100,000,000 sats). How long would it take you at your chore rate?
+  </div>
+  <div id="pw-low-warn" style="display:none;margin:0 20px 16px;background:rgba(255,82,82,.12);border:1px solid var(--red);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:var(--red);font-weight:600;">
+    ⚠️ Balance getting low! Tap below to top up back to 10,000,000 sats.
+  </div>
+  <div style="padding:0 20px;">
+    <div class="invest-card">
+      <div class="invest-row"><span class="invest-label">Sats remaining</span><span class="invest-value" id="pw-screen-sats" style="color:#c4b5fd;">—</span></div>
+      <div class="invest-row"><span class="invest-label">BTC</span><span class="invest-value" id="pw-screen-btc" style="color:#c4b5fd;">—</span></div>
+      <div class="invest-row"><span class="invest-label">Worth today</span><span class="invest-value" id="pw-worth" style="color:#c4b5fd;">—</span></div>
+      <div class="invest-row"><span class="invest-label">BTC price today</span><span class="invest-value" id="pw-price-today" style="color:var(--accent);">—</span></div>
+      <div class="invest-row"><span class="invest-label">If BTC hits £100,000</span><span class="invest-value" id="pw-at-100k" style="color:var(--green);">—</span></div>
+      <div class="invest-row"><span class="invest-label">If BTC hits £250,000</span><span class="invest-value" id="pw-at-250k" style="color:var(--green);">—</span></div>
+      <div class="invest-row"><span class="invest-label">If BTC hits £500,000</span><span class="invest-value" id="pw-at-500k" style="color:var(--green);">—</span></div>
+      <div class="invest-row"><span class="invest-label">If BTC hits £1,000,000</span><span class="invest-value" id="pw-at-1m" style="color:var(--green);">—</span></div>
+    </div>
+    <button class="modal-btn-sec" style="margin-bottom:20px;" onclick="topUpParentWallet()">🔄 Reset to 10,000,000 sats</button>
+    <div class="section-title">Payments made</div>
+    <div id="pw-history-list"></div>
+  </div>
+</div>
+
+<!-- ===== PAYMENT OVERLAY ===== -->
+<div id="pay-overlay">
+  <div class="pay-anim-ring"></div><div class="pay-anim-ring"></div><div class="pay-anim-ring"></div>
+  <div class="pay-stage-connecting" id="pay-stage-connecting" style="display:none;">
+    <div class="connect-anim" id="connect-text">Routing payment…</div>
+    <div class="pay-route-line">
+      <span>👑</span>
+      <span class="pay-route-hop" style="animation-delay:.1s">⚡</span>
+      <span class="pay-route-hop" style="animation-delay:.2s">⚡</span>
+      <span class="pay-route-hop" style="animation-delay:.3s">⚡</span>
+      <span id="pay-route-target">🦊</span>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-top:8px;">Finding route through Lightning Network…</div>
+  </div>
+  <div class="pay-anim-center" id="pay-anim-center" style="display:none;">
+    <span class="pay-anim-bolt">⚡</span>
+    <span class="pay-anim-amount" id="pay-anim-amount">0</span>
+    <div class="pay-anim-label" id="pay-anim-label">sats received!</div>
+    <div class="pay-anim-sub" id="pay-anim-sub">Keep stacking! 🚀</div>
+  </div>
+</div>
+
+<!-- ===== SPEND OVERLAY ===== -->
+<div id="spend-overlay">
+  <div class="spend-modal">
+    <div class="spend-overlay-title" id="spend-overlay-title">Record a purchase</div>
+    <div class="field">
+      <label>What did you buy?</label>
+      <input type="text" id="spend-item-name" placeholder="e.g. New book" maxlength="40">
+    </div>
+    <div class="field">
+      <label>Cost in sats</label>
+      <input type="number" id="spend-item-sats" placeholder="e.g. 1500" min="1">
+    </div>
+    <div class="info-box" id="spend-fiat-preview">≈ £0.00 at today's price</div>
+    <button class="modal-btn-red" onclick="confirmSpend()">💸 Deduct sats</button>
+    <button class="modal-btn-sec" onclick="closeSpendOverlay()">Cancel</button>
+  </div>
+</div>
+
+<!-- ===== PIN OVERLAY ===== -->
+<div id="pin-overlay" class="modal-overlay">
+  <div class="modal-sheet" style="border-radius:24px 24px 0 0;">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="pin-title">🔐 Parent PIN</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key" onclick="pinKey('change')" style="font-size:13px;color:var(--text3);">Change</button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key" onclick="pinKey('del')">⌫</button>
+    </div>
+    <button class="modal-btn-sec" style="margin-top:16px;" onclick="closeModal('pin-overlay');pinBuffer='';">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD KID MODAL -->
+<div class="modal-overlay" id="add-kid-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add a kid</div>
+    <div class="field"><label>Name</label><input type="text" id="new-kid-name" placeholder="e.g. Alice" maxlength="20"></div>
+    <div class="field"><label>Pick an avatar</label><div class="emoji-picker" id="avatar-picker"></div></div>
+    <button class="modal-btn" onclick="saveNewKid()">Add kid ⚡</button>
+    <button class="modal-btn-sec" onclick="closeModal('add-kid-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD GOAL MODAL -->
+<div class="modal-overlay" id="add-goal-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New savings goal 🎯</div>
+    <div class="field"><label>What are you saving for?</label><input type="text" id="goal-name-input" placeholder="e.g. New Lego set" maxlength="40"></div>
+    <div class="field"><label>Pick an emoji</label><div class="emoji-picker" id="goal-emoji-picker"></div></div>
+    <div class="field"><label>Cost in £</label><input type="number" id="goal-cost-input" placeholder="e.g. 25.00" min="0.01" step="0.01"></div>
+    <div class="info-box">≈ <strong id="goal-sats-preview" style="color:var(--accent);font-family:'Space Mono',monospace;">—</strong> sats at today's price</div>
+    <button class="modal-btn" onclick="saveGoal()">Set goal ⚡</button>
+    <button class="modal-btn-sec" onclick="closeModal('add-goal-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD CHORE MODAL -->
+<div class="modal-overlay" id="add-chore-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add a task</div>
+    <div class="field"><label>Task name</label><input type="text" id="chore-name-input" placeholder="e.g. Tidy bedroom" maxlength="40"></div>
+    <div class="field"><label>Reward in sats</label><input type="number" id="chore-sats-input" placeholder="e.g. 250" min="1" step="1"></div>
+    <div class="field" style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:var(--radius-sm);padding:12px 14px;">
+      <div>
+        <div style="font-size:14px;font-weight:700;">🔁 Recurring task</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">Auto-restore each week on reset</div>
+      </div>
+      <div class="toggle-switch" id="chore-recurring-toggle" onclick="toggleChoreRecurring()"><div class="toggle-knob"></div></div>
+    </div>
+    <button class="modal-btn" onclick="saveChore()">Add task ⚡</button>
+    <button class="modal-btn-sec" onclick="closeModal('add-chore-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- SET NEW PIN MODAL -->
+<div class="modal-overlay" id="set-pin-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="set-pin-title">Set Parent PIN</div>
+    <div class="field"><label>New 4-digit PIN</label><input type="password" inputmode="numeric" id="set-pin-input" maxlength="4" placeholder="••••"></div>
+    <div class="field"><label>Confirm PIN</label><input type="password" inputmode="numeric" id="set-pin-confirm" maxlength="4" placeholder="••••"></div>
+    <div class="pin-error" id="set-pin-error" style="margin-bottom:8px;"></div>
+    <button class="modal-btn" onclick="savePin()">Set PIN 🔐</button>
+    <button class="modal-btn-sec" onclick="closeModal('set-pin-modal')">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+const DEFAULT_STATE = {
+  kids:[
+    {id:'kid_alice',name:'Alice',avatar:'🦊',balance:0,totalEarned:0,streak:0,firstEarnedPrice:null,
+      chores:[
+        {id:'ca1',name:'Tidy bedroom',sats:300,done:false,recurring:true},
+        {id:'ca2',name:'Empty dishwasher',sats:200,done:false,recurring:true},
+        {id:'ca3',name:'Read for 20 mins',sats:250,done:false,recurring:true},
+      ],
+      goals:[],spends:[],history:[]},
+    {id:'kid_bob',name:'Bob',avatar:'🐻',balance:0,totalEarned:0,streak:0,firstEarnedPrice:null,
+      chores:[
+        {id:'cb1',name:'Tidy bedroom',sats:300,done:false,recurring:true},
+        {id:'cb2',name:'Help with dinner',sats:250,done:false,recurring:true},
+        {id:'cb3',name:'Read for 20 mins',sats:250,done:false,recurring:true},
+      ],
+      goals:[],spends:[],history:[]},
+  ],
+  parentMode:false,
+  pin:null,
+  seenOnboarding:false,
+  lnbitsUrl:null,
+  lnbitsKey:null,
+  parentWalletSats:10000000,
+  parentWalletHistory:[],
+};
+
+let state = JSON.parse(localStorage.getItem('satskids_v2')||'null') || JSON.parse(JSON.stringify(DEFAULT_STATE));
+let currentKidId=null, btcPriceGbp=null, btcPriceUsd=null;
+let selectedAvatar='🦊', selectedGoalEmoji='🎮';
+let invoiceStage=0; // 0=idle,1=generated,2=paying
+let currentSpendGoalId=null;
+let pinBuffer='', pinMode='verify'; // verify|set|change-old|change-new
+
+function save(){localStorage.setItem('satskids_v2',JSON.stringify(state));}
+function kid(){return state.kids.find(k=>k.id===currentKidId);}
+
+// ===== BTC PRICE =====
+async function fetchPrice(){
+  let fetched=false;
+
+  // Source 1: CoinGecko
+  if(!fetched){
+    try{
+      const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=gbp,usd&include_24hr_change=true',{signal:AbortSignal.timeout(5000)});
+      const d=await r.json();
+      if(d?.bitcoin?.gbp){
+        btcPriceGbp=d.bitcoin.gbp; btcPriceUsd=d.bitcoin.usd;
+        const ch=d.bitcoin.gbp_24h_change||0;
+        setTicker('£'+btcPriceGbp.toLocaleString(), ch, true);
+        fetched=true;
+      }
+    }catch(e){}
+  }
+
+  // Source 2: Coinbase
+  if(!fetched){
+    try{
+      const [gbpR,usdR]=await Promise.all([
+        fetch('https://api.coinbase.com/v2/prices/BTC-GBP/spot',{signal:AbortSignal.timeout(5000)}),
+        fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot',{signal:AbortSignal.timeout(5000)}),
+      ]);
+      const [gbpD,usdD]=await Promise.all([gbpR.json(),usdR.json()]);
+      if(gbpD?.data?.amount){
+        btcPriceGbp=parseFloat(gbpD.data.amount);
+        btcPriceUsd=parseFloat(usdD.data.amount);
+        setTicker('£'+btcPriceGbp.toLocaleString(), null, true);
+        fetched=true;
+      }
+    }catch(e){}
+  }
+
+  // Source 3: Blockchain.info
+  if(!fetched){
+    try{
+      const r=await fetch('https://blockchain.info/ticker',{signal:AbortSignal.timeout(5000)});
+      const d=await r.json();
+      if(d?.GBP?.last){
+        btcPriceGbp=d.GBP.last; btcPriceUsd=d.USD?.last||btcPriceGbp*1.27;
+        setTicker('£'+btcPriceGbp.toLocaleString(), null, true);
+        fetched=true;
+      }
+    }catch(e){}
+  }
+
+  // All failed — keep previous price if we had one, otherwise show unavailable
+  if(!fetched){
+    document.getElementById('ticker-price').textContent=btcPriceGbp?'£'+btcPriceGbp.toLocaleString():'price unavailable';
+    document.getElementById('ticker-change').textContent='offline';
+    document.getElementById('ticker-change').className='ticker-change';
+  }
+
+  renderHome();
+  if(currentKidId)renderKid();
+  updateParentWalletDisplay();
+}
+
+function setTicker(priceStr, change, isLive){
+  document.getElementById('ticker-price').textContent=priceStr;
+  const ce=document.getElementById('ticker-change');
+  if(change!==null&&change!==undefined){
+    ce.textContent=(change>=0?'+':'')+change.toFixed(2)+'%';
+    ce.className='ticker-change '+(change>=0?'up':'down');
+  } else {
+    ce.textContent='live';
+    ce.className='ticker-change up';
+  }
+}
+function satsToGbp(s){return btcPriceGbp?(s/1e8)*btcPriceGbp:null;}
+function gbpToSats(g){return btcPriceGbp?Math.round((g/btcPriceGbp)*1e8):null;}
+function fmtSats(n){return Math.round(n).toLocaleString();}
+function fmtGbp(v,sign=false){return (sign&&v>0?'+':'')+'£'+Math.abs(v).toFixed(2);}
+function fmtFiat(sats){
+  const f=satsToGbp(sats);
+  return f?'≈ £'+f.toFixed(2):'(price unavailable)';
+}
+
+// ===== PARENT WALLET =====
+function updateParentWalletDisplay(){
+  const sats=state.parentWalletSats;
+  const btc=(sats/1e8);
+  const fiat=satsToGbp(sats);
+  const fiatStr=fiat?'£'+fiat.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'Loading…';
+
+  // Home card
+  document.getElementById('pw-home-sats').textContent=fmtSats(sats)+' sats';
+  document.getElementById('pw-home-fiat').textContent='≈ '+fiatStr;
+
+  // Hero section (top of screen)
+  const heroSats=document.getElementById('pw-hero-sats');
+  const heroFiat=document.getElementById('pw-hero-fiat');
+  const heroBtc=document.getElementById('pw-hero-btc');
+  if(heroSats) heroSats.textContent=fmtSats(sats)+' sats';
+  if(heroFiat) heroFiat.textContent='≈ '+fiatStr;
+  if(heroBtc)  heroBtc.textContent=btc.toFixed(8)+' BTC';
+
+  // Detail table
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  set('pw-screen-sats', fmtSats(sats)+' sats');
+  set('pw-screen-btc',  btc.toFixed(8)+' BTC');
+  set('pw-worth',       fiat?'£'+fiat.toFixed(2):'Loading…');
+  set('pw-price-today', btcPriceGbp?'£'+btcPriceGbp.toLocaleString():'Loading…');
+
+  // Scenario rows — dynamic based on actual sats balance
+  const scenarios=[
+    {id:'pw-at-100k',  price:100000},
+    {id:'pw-at-250k',  price:250000},
+    {id:'pw-at-500k',  price:500000},
+    {id:'pw-at-1m',    price:1000000},
+  ];
+  for(const s of scenarios){
+    const val='£'+(btc*s.price).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    set(s.id, val);
+  }
+
+  // Low balance warning
+  const warn=document.getElementById('pw-low-warn');
+  if(warn) warn.style.display=sats<500000?'block':'none';
+
+  // History
+  renderParentWalletHistory();
+}
+
+// ===== HOME =====
+function renderHome(){
+  const g=document.getElementById('kids-grid');
+  let h='';
+  for(const k of state.kids){
+    const f=satsToGbp(k.balance);
+    h+=`<div class="kid-card" onclick="openKid('${k.id}')">
+      <span class="kid-avatar">${k.avatar}</span>
+      <div class="kid-name">${k.name}</div>
+      <div class="kid-balance">${fmtSats(k.balance)} sats</div>
+      <div class="kid-sats-small">${f!==null?'≈ £'+f.toFixed(2):''}</div>
+    </div>`;
+  }
+  if(state.parentMode){
+    h+=`<div class="add-kid-btn" onclick="event.stopPropagation();openAddKidModal()">
+      <span class="add-icon">＋</span><span style="font-size:12px;font-weight:700;">Add kid</span>
+    </div>`;
+  }
+  g.innerHTML=h;
+  document.getElementById('parent-wallet-home').style.display=state.parentMode?'block':'none';
+  updateParentWalletDisplay();
+  const tog=document.getElementById('parent-toggle');
+  const lbl=document.getElementById('parent-mode-label');
+  if(state.parentMode){tog.classList.add('on');lbl.textContent='On';lbl.style.color='var(--accent)';}
+  else{tog.classList.remove('on');lbl.textContent='Off';lbl.style.color='var(--text3)';}
+}
+
+// ===== PIN =====
+function requestParentMode(){
+  if(state.parentMode){
+    state.parentMode=false; save(); renderHome(); if(currentKidId)renderKid(); return;
+  }
+  if(!state.pin){
+    // no pin set — ask to set one
+    document.getElementById('set-pin-title').textContent='Set a Parent PIN first';
+    document.getElementById('set-pin-input').value='';
+    document.getElementById('set-pin-confirm').value='';
+    document.getElementById('set-pin-error').textContent='';
+    openModal('set-pin-modal');
+  } else {
+    pinMode='verify'; pinBuffer='';
+    document.getElementById('pin-title').textContent='🔐 Enter Parent PIN';
+    document.getElementById('pin-error').textContent='';
+    updatePinDots();
+    openModal('pin-overlay');
+  }
+}
+
+function pinKey(k){
+  if(k==='change'){
+    // initiate change flow
+    closeModal('pin-overlay');
+    document.getElementById('set-pin-title').textContent='Change PIN';
+    document.getElementById('set-pin-input').value='';
+    document.getElementById('set-pin-confirm').value='';
+    document.getElementById('set-pin-error').textContent='';
+    openModal('set-pin-modal');
+    return;
+  }
+  if(k==='del'){pinBuffer=pinBuffer.slice(0,-1);}
+  else if(pinBuffer.length<4){pinBuffer+=k;}
+  updatePinDots();
+  if(pinBuffer.length===4){
+    setTimeout(()=>{
+      if(pinBuffer===state.pin){
+        closeModal('pin-overlay');
+        state.parentMode=true; save(); renderHome(); if(currentKidId)renderKid();
+        pinBuffer='';
+      } else {
+        document.getElementById('pin-error').textContent='Wrong PIN — try again';
+        pinBuffer=''; updatePinDots();
+        setTimeout(()=>document.getElementById('pin-error').textContent='',1500);
+      }
+    },120);
+  }
+}
+
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    document.getElementById('pd'+i).classList.toggle('filled',i<pinBuffer.length);
+  }
+}
+
+function savePin(){
+  const a=document.getElementById('set-pin-input').value;
+  const b=document.getElementById('set-pin-confirm').value;
+  const err=document.getElementById('set-pin-error');
+  if(!/^\d{4}$/.test(a)){err.textContent='PIN must be 4 digits';return;}
+  if(a!==b){err.textContent='PINs do not match';return;}
+  state.pin=a; state.parentMode=true; save();
+  closeModal('set-pin-modal');
+  renderHome(); if(currentKidId)renderKid();
+}
+
+// ===== KID SCREEN =====
+function openKid(id){
+  currentKidId=id; invoiceStage=0;
+  show('kid-screen'); hide('home');
+  showTab('chores'); renderKid();
+}
+function goHome(){hide('kid-screen');hide('learn-screen');hide('parent-wallet-screen');show('home');currentKidId=null;document.getElementById('pay-bar').style.display='none';invoiceStage=0;document.getElementById('invoice-box').classList.remove('active');renderHome();}
+function show(id){document.getElementById(id).classList.add('active');}
+function hide(id){document.getElementById(id).classList.remove('active');}
+function showTab(name){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.kid-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const tabs=['chores','goals','spend','history','invest'];
+  const idx=tabs.indexOf(name);
+  document.querySelectorAll('.kid-tab')[idx].classList.add('active');
+  if(name==='invest')renderInvest();
+  if(name==='spend')renderSpends();
+}
+
+function renderKid(){
+  const k=kid(); if(!k)return;
+  document.getElementById('kid-hero-avatar').textContent=k.avatar;
+  document.getElementById('kid-hero-name').textContent=k.name;
+  document.getElementById('kid-balance-sats').textContent=fmtSats(k.balance);
+  const f=satsToGbp(k.balance);
+  document.getElementById('kid-balance-fiat').textContent=f!==null?'≈ £'+f.toFixed(2):(btcPriceGbp===null?'Price unavailable':'≈ £0.00');
+  document.getElementById('kid-balance-btc').textContent=(k.balance/1e8).toFixed(8)+' BTC';
+  renderBadges(k); renderChores(k); renderGoals(k); renderHistory(k);
+  const pb=document.getElementById('pay-bar');
+  if(state.parentMode){pb.style.display='flex'; updatePayBtn();}
+  else{pb.style.display='none';}
+  document.getElementById('parent-chore-controls').style.display=state.parentMode?'block':'none';
+  document.getElementById('delete-kid-btn').style.display=state.parentMode?'block':'none';
+}
+
+function renderBadges(k){
+  const badges=[];
+  if(k.totalEarned>=1000)badges.push({earned:true,icon:'💎',label:'1K sats club'});
+  if(k.totalEarned>=5000)badges.push({earned:true,icon:'🚀',label:'5K sats!'});
+  if(k.goals.length>0)badges.push({earned:true,icon:'🎯',label:'Goal setter'});
+  const streakEl=k.streak>=1?`<div class="streak-flame" style="--sz:${Math.min(1+k.streak*0.15,2.2)}">
+    <span class="flame-emoji">🔥</span>
+    <span class="flame-label">${k.streak} week streak!</span>
+  </div>`:'';
+  document.getElementById('kid-badges').innerHTML=
+    streakEl+badges.map(b=>`<div class="badge ${b.earned?'earned':''}">${b.icon} ${b.label}</div>`).join('');
+}
+
+function renderChores(k){
+  const el=document.getElementById('chore-list');
+  if(!k.chores.length){el.innerHTML=`<div class="empty-state"><span class="empty-state-icon">📋</span><div class="empty-state-text">No tasks yet!</div></div>`;return;}
+  el.innerHTML=k.chores.map(c=>`
+    <div class="chore-item ${c.done?'done':''}" onclick="toggleChore('${c.id}')">
+      <div class="chore-check">${c.done?'✓':''}</div>
+      <div class="chore-name">${c.name}${c.recurring?' <span style="font-size:10px;color:var(--text3);">🔁</span>':''}</div>
+      <div class="chore-sats">+${fmtSats(c.sats)}</div>
+      ${state.parentMode?`<button class="del-btn" onclick="event.stopPropagation();deleteChore('${c.id}')">✕</button>`:''}
+    </div>`).join('');
+}
+
+function toggleChore(id){
+  const k=kid(); const c=k.chores.find(x=>x.id===id); if(!c)return;
+  c.done=!c.done;
+  if(c.done) playSound('tick');
+  save(); renderChores(k); updatePayBtn();
+}
+
+function deleteChore(id){const k=kid();k.chores=k.chores.filter(c=>c.id!==id);save();renderChores(k);updatePayBtn();}
+
+function renderGoals(k){
+  const el=document.getElementById('goals-list');
+  if(!k.goals.length){el.innerHTML=`<div class="empty-state"><span class="empty-state-icon">🎯</span><div class="empty-state-text">No goals yet! What are you saving for?</div></div>`;return;}
+  el.innerHTML=k.goals.map(g=>{
+    const target=btcPriceGbp?gbpToSats(g.costGbp):g.targetSats||10000;
+    const pct=Math.min(100,Math.round((k.balance/target)*100));
+    const remaining=Math.max(0,target-k.balance);
+    const reached=remaining===0;
+    return `<div class="goal-card">
+      <div class="goal-header">
+        <div>
+          <div class="goal-name">${g.emoji} ${g.name}</div>
+          <div class="goal-amounts">
+            <span class="goal-sats-needed">${fmtSats(target)} sats</span>
+            <span> · £${g.costGbp.toFixed(2)} · ${reached?'🎉 Goal reached!':fmtSats(remaining)+' to go'}</span>
+          </div>
+        </div>
+        ${state.parentMode?`<button class="del-btn" onclick="deleteGoal('${g.id}')">✕</button>`:''}
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="goal-progress-label">${pct}% there</div>
+      ${state.parentMode?`<div class="goal-btn-row">
+        <button class="goal-spend-btn" onclick="openGoalSpend('${g.id}','${g.name}',${target})">💸 Mark as purchased</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function deleteGoal(id){const k=kid();k.goals=k.goals.filter(g=>g.id!==id);save();renderGoals(k);}
+
+function renderSpends(){
+  const k=kid();
+  const el=document.getElementById('spend-list');
+  if(!k.spends||!k.spends.length){el.innerHTML=`<div class="empty-state"><span class="empty-state-icon">💸</span><div class="empty-state-text">Nothing purchased yet</div></div>`;return;}
+  el.innerHTML=[...k.spends].sort((a,b)=>b.date-a.date).map(s=>{
+    const d=new Date(s.date).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const f=btcPriceGbp?'≈ £'+((s.sats/1e8)*btcPriceGbp).toFixed(2):'';
+    return `<div class="spend-card">
+      <div class="spend-card-header">
+        <div class="spend-card-name">💸 ${s.name}</div>
+        <div class="spend-card-sats">-${fmtSats(s.sats)} sats</div>
+      </div>
+      <div class="spend-card-desc">${d} ${f?'· '+f:''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderHistory(k){
+  const el=document.getElementById('history-list');
+  if(!k.history.length){el.innerHTML=`<div class="empty-state"><span class="empty-state-icon">📜</span><div class="empty-state-text">No transactions yet</div></div>`;return;}
+  el.innerHTML=[...k.history].sort((a,b)=>b.date-a.date).map(tx=>{
+    const d=new Date(tx.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return `<div class="tx-item">
+      <div class="tx-icon ${tx.type}">${tx.type==='earn'?'⚡':'💸'}</div>
+      <div class="tx-desc"><div class="tx-desc-name">${tx.desc}</div><div class="tx-desc-date">${d}</div></div>
+      <div class="tx-amount ${tx.type}">${tx.type==='earn'?'+':'-'}${fmtSats(tx.sats)} sats</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== INVOICE PAYMENT FLOW =====
+function updatePayBtn(){
+  const k=kid(); if(!k)return;
+  const earned=k.chores.filter(c=>c.done).reduce((s,c)=>s+c.sats,0);
+  const btn=document.getElementById('pay-btn');
+  const box=document.getElementById('invoice-box');
+  if(earned===0){
+    invoiceStage=0; box.classList.remove('active');
+    btn.className='pay-btn stage-generate'; btn.disabled=true;
+    btn.innerHTML='📋 No tasks completed yet'; return;
+  }
+  if(invoiceStage===0){
+    box.classList.remove('active');
+    btn.className='pay-btn stage-generate'; btn.disabled=false;
+    btn.innerHTML=`📋 Generate invoice for ${fmtSats(earned)} sats`;
+  } else if(invoiceStage===1){
+    btn.className='pay-btn stage-invoice'; btn.disabled=false;
+    btn.innerHTML=`🟣 Pay invoice: ${fmtSats(earned)} sats`;
+  } else if(invoiceStage===2){
+    btn.className='pay-btn stage-pay'; btn.disabled=true;
+    btn.innerHTML=`⚡ Processing…`;
+  }
+}
+
+function handlePayBtn(){
+  if(invoiceStage===0){generateInvoice();}
+  else if(invoiceStage===1){triggerPayment();}
+}
+
+function generateInvoice(){
+  const k=kid();
+  const earned=k.chores.filter(c=>c.done).reduce((s,c)=>s+c.sats,0);
+  if(earned===0)return;
+  invoiceStage=1;
+  // fake QR
+  const qrEl=document.getElementById('invoice-qr');
+  const pattern=generateQRPattern();
+  qrEl.innerHTML=pattern.map(cell=>`<div class="qr-cell ${cell?'b':'w'}"></div>`).join('');
+  // fake invoice id
+  const chars='abcdef0123456789';
+  const fakeId='lnbc'+earned+'n1p'+Array.from({length:40},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  document.getElementById('invoice-id-text').textContent=fakeId;
+  document.getElementById('invoice-amount-label').textContent=`Invoice: ${fmtSats(earned)} sats for ${k.name}`;
+  document.getElementById('invoice-box').classList.add('active');
+  updatePayBtn();
+}
+
+function generateQRPattern(){
+  // deterministic-looking QR pattern (7x7 = 49 cells)
+  const pattern=[];
+  for(let i=0;i<49;i++){
+    // corner squares
+    const r=Math.floor(i/7),c=i%7;
+    if((r<2&&c<2)||(r<2&&c>4)||(r>4&&c<2))pattern.push(true);
+    else pattern.push(Math.random()>0.5);
+  }
+  return pattern;
+}
+
+function triggerPayment(){
+  const k=kid();
+  const earned=k.chores.filter(c=>c.done).reduce((s,c)=>s+c.sats,0);
+  if(earned===0)return;
+  invoiceStage=2; updatePayBtn();
+  const overlay=document.getElementById('pay-overlay');
+  const connecting=document.getElementById('pay-stage-connecting');
+  const success=document.getElementById('pay-anim-center');
+  document.getElementById('pay-route-target').textContent=k.avatar;
+  // stage 1: routing animation
+  overlay.classList.add('active');
+  connecting.style.display='block'; success.style.display='none';
+  const connectMsgs=['Connecting to network…','Finding route…','Routing through nodes…','Confirming payment…'];
+  let mi=0;
+  const msgInt=setInterval(()=>{
+    mi=(mi+1)%connectMsgs.length;
+    document.getElementById('connect-text').textContent=connectMsgs[mi];
+  },600);
+  // stage 2: success after 2.2s
+  setTimeout(()=>{
+    clearInterval(msgInt);
+    connecting.style.display='none';
+    success.style.display='block';
+    document.getElementById('pay-anim-amount').textContent=fmtSats(earned);
+    document.getElementById('pay-anim-label').textContent='sats for '+k.name+'!';
+    const fiat=satsToGbp(earned);
+    document.getElementById('pay-anim-sub').textContent=fiat?`That's about £${fiat.toFixed(2)}. Keep stacking! 🚀`:'Keep stacking! 🚀';
+    playSound('pay');
+    // particle rain
+    const emojis=['⚡','⚡','⚡','₿','⚡','💛','⚡','✨'];
+    for(let i=0;i<24;i++){
+      setTimeout(()=>{
+        const p=document.createElement('div');
+        p.className='sat-particle';
+        p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+        p.style.left=Math.random()*100+'vw'; p.style.top='-30px';
+        p.style.animationDuration=(0.8+Math.random()*0.8)+'s';
+        p.style.animationDelay=(Math.random()*0.5)+'s';
+        overlay.appendChild(p); setTimeout(()=>p.remove(),2000);
+      },i*55);
+    }
+    // credit balance
+    // Deduct from parent wallet
+    state.parentWalletSats=Math.max(0,state.parentWalletSats-earned);
+    if(!state.parentWalletHistory)state.parentWalletHistory=[];
+    state.parentWalletHistory.push({date:Date.now(),desc:'Paid '+k.name,sats:earned});
+    updateParentWalletDisplay();
+    k.balance+=earned; k.totalEarned+=earned; k.streak=(k.streak||0)+1;
+    if(!k.firstEarnedPrice&&btcPriceGbp)k.firstEarnedPrice=btcPriceGbp;
+    k.history.push({id:'h'+Date.now(),type:'earn',desc:'Week '+(k.history.filter(h=>h.type==='earn').length+1)+' tasks',sats:earned,date:Date.now(),priceThen:btcPriceGbp||null});
+    k.chores.forEach(c=>c.done=false);
+    save();
+  },2200);
+  // dismiss after 5.5s
+  setTimeout(()=>{
+    overlay.classList.remove('active');
+    connecting.style.display='none'; success.style.display='none';
+    invoiceStage=0;
+    document.getElementById('invoice-box').classList.remove('active');
+    renderKid();
+  },5500);
+}
+
+// ===== SPEND =====
+function openGoalSpend(goalId,goalName,targetSats){
+  currentSpendGoalId=goalId;
+  document.getElementById('spend-overlay-title').textContent='💸 Buy: '+goalName;
+  document.getElementById('spend-item-name').value=goalName;
+  document.getElementById('spend-item-sats').value=targetSats;
+  updateSpendFiatPreview();
+  document.getElementById('spend-overlay').classList.add('active');
+}
+
+function openAdHocSpendModal(){
+  currentSpendGoalId=null;
+  document.getElementById('spend-overlay-title').textContent='💸 Record a purchase';
+  document.getElementById('spend-item-name').value='';
+  document.getElementById('spend-item-sats').value='';
+  document.getElementById('spend-fiat-preview').textContent='≈ £0.00 at today\'s price';
+  document.getElementById('spend-overlay').classList.add('active');
+}
+
+function updateSpendFiatPreview(){
+  const s=parseInt(document.getElementById('spend-item-sats').value)||0;
+  const f=satsToGbp(s);
+  document.getElementById('spend-fiat-preview').textContent=f?'≈ £'+f.toFixed(2)+' at today\'s price':'≈ £0.00 at today\'s price';
+}
+
+document.getElementById('spend-item-sats').addEventListener('input',updateSpendFiatPreview);
+
+function confirmSpend(){
+  const k=kid();
+  const name=document.getElementById('spend-item-name').value.trim();
+  const sats=parseInt(document.getElementById('spend-item-sats').value);
+  if(!name||!sats||sats<=0){return;}
+  if(sats>k.balance){alert('Not enough sats!');return;}
+  k.balance-=sats;
+  if(!k.spends)k.spends=[];
+  k.spends.push({id:'s'+Date.now(),name,sats,date:Date.now(),goalId:currentSpendGoalId});
+  k.history.push({id:'h'+Date.now(),type:'spend',desc:name,sats,date:Date.now(),priceThen:btcPriceGbp||null});
+  save(); closeSpendOverlay();
+  showSpendAnimation(name, sats);
+}
+
+function showSpendAnimation(name, sats){
+  const ov=document.getElementById('spend-anim-overlay');
+  document.getElementById('spend-anim-amount').textContent='-'+fmtSats(sats)+' sats';
+  document.getElementById('spend-anim-label').textContent='Spent on: '+name;
+  const fiat=satsToGbp(sats);
+  document.getElementById('spend-anim-sub').textContent=fiat?'About £'+fiat.toFixed(2):'';
+  ov.style.display='flex';
+  // money flying out particles
+  const coins=['💸','💸','💸','💰','💸','🪙'];
+  for(let i=0;i<16;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.style.cssText='position:absolute;font-size:22px;animation:sat-fall 1s ease-in both;pointer-events:none;';
+      p.textContent=coins[Math.floor(Math.random()*coins.length)];
+      p.style.left=Math.random()*100+'vw';
+      p.style.top='-30px';
+      p.style.animationDuration=(0.6+Math.random()*0.6)+'s';
+      ov.appendChild(p);
+      setTimeout(()=>p.remove(),1500);
+    },i*60);
+  }
+  playSound('spend');
+  setTimeout(()=>{ov.style.display='none';renderKid();},2800);
+}
+
+function closeSpendOverlay(){document.getElementById('spend-overlay').classList.remove('active');}
+
+// ===== INVEST =====
+function renderInvest(){
+  const k=kid(); if(!k)return;
+  document.getElementById('inv-total-earned').textContent=fmtSats(k.totalEarned)+' sats';
+  document.getElementById('inv-balance').textContent=fmtSats(k.balance)+' sats';
+  document.getElementById('inv-price-now').textContent=btcPriceGbp?'£'+btcPriceGbp.toLocaleString():'—';
+  if(btcPriceGbp){
+    const now=satsToGbp(k.balance);
+    document.getElementById('inv-worth-today').textContent='£'+now.toFixed(2);
+    if(k.firstEarnedPrice){
+      const then=(k.balance/1e8)*k.firstEarnedPrice;
+      const gain=now-then;
+      document.getElementById('inv-worth-then').textContent='£'+then.toFixed(2);
+      const ge=document.getElementById('inv-gain');
+      ge.textContent=(gain>=0?'+':'-')+'£'+Math.abs(gain).toFixed(2);
+      ge.className='invest-value '+(gain>=0?'up':'down');
+    } else {
+      document.getElementById('inv-worth-then').textContent='—';
+      document.getElementById('inv-gain').textContent='—';
+    }
+  }
+  // projections — 25%/yr on current price
+  if(btcPriceGbp){
+    const years=[1,2,3,5,10];
+    const sats=k.balance;
+    let html='';
+    for(const y of years){
+      const projPrice=btcPriceGbp*Math.pow(1.25,y);
+      const projFiat=(sats/1e8)*projPrice;
+      html+=`<div class="proj-card">
+        <div class="proj-year">In ${y} year${y>1?'s':''}</div>
+        <div class="proj-vals">
+          <div class="proj-sats">${fmtSats(sats)} sats</div>
+          <div class="proj-fiat">≈ £${projFiat.toFixed(2)} <span style="color:var(--green);font-size:11px;">(BTC at £${Math.round(projPrice).toLocaleString()})</span></div>
+        </div>
+      </div>`;
+    }
+    document.getElementById('proj-list').innerHTML=html;
+  }
+}
+
+// ===== LEARN =====
+const LEARN_CONTENT=[
+  {
+    icon:'__BTC_LOGO__',
+    title:'What is Bitcoin?',
+    sub:'Money that nobody controls',
+    body:`<p class="learn-text">Bitcoin is a type of money that lives on the internet. Unlike the pounds in your piggy bank, <strong>nobody owns Bitcoin</strong>. No government, no bank, no single person.</p>
+    <p class="learn-text">Instead, thousands of computers around the world all work together to keep track of who has what. It's like a giant shared notebook that everyone can see but nobody can cheat.</p>
+    <div class="learn-anim"><span class="learn-anim-placeholder">🌍💻🌏💻🌎</span><div style="font-size:13px;color:var(--text2);">Computers all around the world keep Bitcoin safe</div></div>
+    <div class="learn-fact">💡 Bitcoin was invented in 2009 by someone called Satoshi Nakamoto. Nobody knows who they really are!</div>`,
+  },
+  {
+    icon:'⚡',
+    title:'What are sats?',
+    sub:'The smallest piece of a Bitcoin',
+    body:`<p class="learn-text">One Bitcoin can be split into <strong>100,000,000 tiny pieces</strong>. Each tiny piece is called a <strong>satoshi</strong>, or "sat" for short, named after Bitcoin's inventor.</p>
+    <p class="learn-text">It's like how £1 = 100 pence. Except Bitcoin has WAY more pieces. This means you don't need to buy a whole Bitcoin. You can start with just a few sats!</p>
+    <div class="learn-anim">
+      <div style="font-family:'Space Mono',monospace;font-size:14px;color:var(--accent);">1 Bitcoin</div>
+      <div style="font-size:20px;">⬇️</div>
+      <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--text2);">100,000,000 sats</div>
+      <div style="margin-top:8px;font-size:24px;animation:float 2s ease-in-out infinite;">⚡⚡⚡⚡⚡⚡⚡⚡</div>
+    </div>
+    <div class="learn-fact">💡 The sats in your wallet are real Bitcoin, just very small amounts. Every sat counts!</div>`,
+  },
+  {
+    icon:'🏦',
+    title:'Why is Bitcoin special?',
+    sub:'Sound money explained simply',
+    body:`<p class="learn-text">Normal money (like pounds) is printed by the government. They can make more whenever they want. When they print lots, each pound buys less. That's called <strong>inflation</strong>.</p>
+    <p class="learn-text">Bitcoin is different. There will <strong>only ever be 21 million Bitcoins</strong>. The rules are written in code. Nobody can change them. This is called <strong>sound money</strong>: money that keeps its value.</p>
+    <div class="learn-anim">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Total Bitcoins that will EVER exist:</div>
+      <div style="font-family:'Space Mono',monospace;font-size:20px;color:var(--accent);animation:pulse-bolt 2s ease-in-out infinite;">21,000,000</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px;">That's it. Forever. No more.</div>
+    </div>
+    <div class="learn-fact">💡 Because the supply is limited, many people think Bitcoin will be worth more and more over time as more people want it.</div>`,
+  },
+  {
+    icon:'💡',
+    title:'How does Lightning work?',
+    sub:'Instant payments anywhere',
+    body:`<p class="learn-text">Normal Bitcoin transactions go on a big public list (called the blockchain) and take about 10 minutes. For small payments like your task sats, that's too slow!</p>
+    <p class="learn-text">The <strong>Lightning Network</strong> is like a fast lane on top of Bitcoin. Payments happen in less than a second and cost almost nothing. That's why we use ⚡ to represent it!</p>
+    <div class="learn-anim">
+      <div style="display:flex;align-items:center;gap:8px;font-size:22px;">
+        <span>👨‍👧</span><span style="font-size:14px;color:var(--accent);animation:pulse-bolt 1s ease-in-out infinite;">⚡⚡⚡</span><span>🦊</span>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-top:8px;">Sats travel instantly over Lightning</div>
+    </div>
+    <div class="learn-fact">💡 Lightning payments are so fast they feel like magic. In the future, you might pay for a coffee with Lightning!</div>`,
+  },
+  {
+    icon:'📈',
+    title:'Why does the price change?',
+    sub:'Supply, demand, and patience',
+    body:`<p class="learn-text">Bitcoin's price goes up and down every day, sometimes a lot! This happens because people are constantly buying and selling it, just like any other thing people want.</p>
+    <p class="learn-text">When lots of people want to buy Bitcoin, the price goes up. When people are worried and sell, it goes down. This is called <strong>supply and demand</strong>.</p>
+    <div class="learn-anim">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);">Bitcoin price over time (roughly)</div>
+      <svg viewBox="0 0 200 60" style="width:100%;max-width:220px;margin-top:8px;">
+        <polyline points="0,55 20,48 40,52 60,35 80,40 100,20 120,28 140,10 160,18 180,8 200,12"
+          fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+        <polyline points="0,55 20,48 40,52 60,35 80,40 100,20 120,28 140,10 160,18 180,8 200,12 200,60 0,60"
+          fill="var(--glow)"/>
+      </svg>
+    </div>
+    <div class="learn-fact">💡 Even though it's bumpy, Bitcoin has gone from nearly £0 to tens of thousands of pounds over 15 years. The key? Patience and holding on!</div>`,
+  },
+  {
+    icon:'✂️',
+    title:'What is the Bitcoin Halving?',
+    sub:'Why Bitcoin gets scarcer over time',
+    body:`<p class="learn-text">About every four years, something remarkable happens to Bitcoin: the reward for creating new Bitcoin is cut in half. This is called the <strong>halving</strong>.</p>
+    <p class="learn-text">When Bitcoin launched in 2009, 50 new Bitcoins were created every ~10 minutes. After the first halving it became 25. Then 12.5. Then 6.25. Today it's <strong>3.125 Bitcoin</strong> every block.</p>
+    <div class="learn-anim" id="halving-anim">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">New Bitcoin created per block over time</div>
+      <div style="display:flex;align-items:flex-end;gap:12px;height:80px;justify-content:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:36px;background:var(--accent);border-radius:4px 4px 0 0;height:80px;opacity:.9;"></div>
+          <div style="font-size:9px;color:var(--text3);">2009</div>
+          <div style="font-size:9px;color:var(--accent);font-weight:700;">50</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:36px;background:var(--accent);border-radius:4px 4px 0 0;height:40px;opacity:.85;"></div>
+          <div style="font-size:9px;color:var(--text3);">2012</div>
+          <div style="font-size:9px;color:var(--accent);font-weight:700;">25</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:36px;background:var(--accent);border-radius:4px 4px 0 0;height:20px;opacity:.8;"></div>
+          <div style="font-size:9px;color:var(--text3);">2016</div>
+          <div style="font-size:9px;color:var(--accent);font-weight:700;">12.5</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:36px;background:var(--accent);border-radius:4px 4px 0 0;height:10px;opacity:.75;"></div>
+          <div style="font-size:9px;color:var(--text3);">2020</div>
+          <div style="font-size:9px;color:var(--accent);font-weight:700;">6.25</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:36px;background:var(--green);border-radius:4px 4px 0 0;height:5px;"></div>
+          <div style="font-size:9px;color:var(--text3);">2024</div>
+          <div style="font-size:9px;color:var(--green);font-weight:700;">3.125</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:36px;background:var(--text3);border-radius:4px 4px 0 0;height:3px;opacity:.5;border:1px dashed var(--text3);"></div>
+          <div style="font-size:9px;color:var(--text3);">2028</div>
+          <div style="font-size:9px;color:var(--text3);font-weight:700;">1.5625</div>
+        </div>
+      </div>
+    </div>
+    <p class="learn-text">Why does this matter? Because it means Bitcoin is becoming <strong>harder and harder to produce</strong>. Less new supply, but potentially more people wanting it, which historically has pushed the price up.</p>
+    <div class="learn-fact">⏱️ <strong>Next halving countdown:</strong> <span id="halving-countdown" style="color:var(--accent);font-family:'Space Mono',monospace;font-size:12px;">calculating…</span></div>
+    <div style="margin-top:12px;background:var(--bg3);border-radius:var(--radius-sm);padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">⏳ How many weeks to save for a goal?</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input type="number" id="savings-calc-target" placeholder="Target sats" style="flex:1;background:var(--bg2);border:1px solid var(--text3);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;outline:none;" oninput="calcSavingsWeeks()">
+        <input type="number" id="savings-calc-weekly" placeholder="Sats per week" style="flex:1;background:var(--bg2);border:1px solid var(--text3);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;outline:none;" oninput="calcSavingsWeeks()">
+      </div>
+      <div id="savings-calc-result" style="font-size:13px;color:var(--text2);min-height:18px;"></div>
+    </div>`,
+  },
+  {
+    icon:'⛏️',
+    title:'What is Bitcoin mining?',
+    sub:'How new Bitcoin gets made',
+    body:`<p class="learn-text">You can't just print Bitcoin like a government prints money. Instead, new Bitcoin is created through a process called <strong>mining</strong>, and it requires real work.</p>
+    <p class="learn-text">Miners are powerful computers that make billions of random guesses every second, racing to find a special number that meets Bitcoin's rules. The first one to find it gets to add the latest transactions to the Bitcoin record book (the blockchain) and wins a small reward of new Bitcoin.</p>
+    <div class="learn-anim">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;justify-content:center;">
+        <div style="text-align:center;"><div style="font-size:28px;animation:float 2s ease-in-out infinite;">💻</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Miner 1</div></div>
+        <div style="text-align:center;"><div style="font-size:28px;animation:float 2s ease-in-out .3s infinite;">💻</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Miner 2</div></div>
+        <div style="text-align:center;"><div style="font-size:28px;animation:float 2s ease-in-out .6s infinite;">💻</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Miner 3</div></div>
+        <div style="font-size:20px;color:var(--text3);">→</div>
+        <div style="text-align:center;"><div style="font-size:32px;animation:pulse-bolt 1.5s ease-in-out infinite;">🎲</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Guess fast!</div></div>
+        <div style="font-size:20px;color:var(--text3);">→</div>
+        <div style="text-align:center;"><div style="font-size:32px;animation:float 2s ease-in-out infinite;">₿</div><div style="font-size:10px;color:var(--green);margin-top:4px;">Win reward!</div></div>
+      </div>
+    </div>
+    <p class="learn-text">The guessing is deliberately hard. It's calibrated so the whole world's miners together find the answer about every <strong>10 minutes</strong>. That's why Bitcoin transactions take time to fully confirm.</p>
+    <p class="learn-text">Mining also keeps Bitcoin secure. To cheat the system you'd need to out-guess the entire rest of the world's computers combined. That's basically impossible.</p>
+    <div class="learn-fact">⚡ <strong>Fun fact:</strong> Bitcoin mining now uses more renewable energy than almost any other industry. Miners seek the cheapest electricity, which is often surplus wind or solar power.</div>
+    <div class="learn-fact">🌍 There are thousands of miners in dozens of countries. Nobody controls them all, which is what keeps Bitcoin decentralised and trustworthy.</div>`,
+  },
+  {
+    icon:'🐣',
+    title:'Why save instead of spend?',
+    sub:'The magic of waiting',
+    body:`<p class="learn-text">Imagine you had 1,000 sats last year. If you spent them, they're gone. But if you saved them, they might be worth more today because Bitcoin's price went up!</p>
+    <p class="learn-text">This is the difference between <strong>spending</strong> and <strong>saving</strong>. Every time you choose to save, you're betting on your future self.</p>
+    <div class="learn-anim">
+      <div style="display:flex;gap:24px;align-items:flex-end;">
+        <div style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:4px;">🍬</div>
+          <div style="font-size:11px;color:var(--text3);">Spend now</div>
+          <div style="font-size:11px;color:var(--red);">Gone forever</div>
+        </div>
+        <div style="font-size:20px;color:var(--text3);">vs</div>
+        <div style="text-align:center;">
+          <div style="font-size:28px;margin-bottom:4px;animation:float 2s ease-in-out infinite;">📈</div>
+          <div style="font-size:11px;color:var(--text3);">Save & wait</div>
+          <div style="font-size:11px;color:var(--green);">Might grow!</div>
+        </div>
+      </div>
+    </div>
+    <div class="learn-fact">💡 This app uses "fake" sats to help you practice, but the lessons are completely real. When you're ready, we can convert to real Bitcoin!</div>`,
+  },
+];
+
+function openLearnScreen(){
+  goHome();
+  hide('home');
+  show('learn-screen');
+  const el=document.getElementById('learn-cards');
+  el.innerHTML=LEARN_CONTENT.map((c,i)=>`
+    <div class="learn-card" onclick="toggleLearn(${i})">
+      <div class="learn-card-header">
+        <div class="learn-card-icon">${c.icon==='__BTC_LOGO__'?'<svg viewBox="0 0 32 32" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="display:block;"><circle cx="16" cy="16" r="16" fill="#f7931a"/><path d="M22.5 13.8c.3-2.1-1.3-3.2-3.5-4l.7-2.8-1.7-.4-.7 2.7-1.4-.3.7-2.8-1.7-.4-.7 2.8-1.1-.3-2.3-.6-.4 1.8s1.3.3 1.2.3c.7.2.8.6.8 1l-.8 3.3c0 .1.1.1.1.2l-.1 0-.1.1-1.1 4.5c-.1.2-.3.6-.8.4 0 .1-1.2-.3-1.2-.3l-.8 1.9 2.2.5 1.2.3-.7 2.8 1.7.4.7-2.8 1.4.3-.7 2.8 1.7.4.7-2.8c2.9.5 5 .3 5.9-2.3.7-2-.03-3.2-1.5-3.9 1.1-.3 1.9-1 2.1-2.6zm-3.8 5.3c-.5 2-3.9.9-5 .7l.9-3.5c1.1.3 4.6.8 4.1 2.8zm.5-5.3c-.5 1.8-3.3.9-4.2.7l.8-3.2c.9.2 3.8.7 3.4 2.5z" fill="#fff"/></svg>':c.icon}</div>
+        <div><div class="learn-card-title">${c.title}</div><div class="learn-card-sub">${c.sub}</div></div>
+      </div>
+      <div class="learn-card-body" id="learn-body-${i}">${c.body}</div>
+    </div>`).join('');
+}
+
+// Halving countdown
+function updateHalvingCountdown(){
+  const el=document.getElementById('halving-countdown');
+  if(!el)return;
+  // Next halving approx April 2028 (block 1,050,000)
+  const next=new Date('2028-04-17T00:00:00Z');
+  const now=new Date();
+  const diff=next-now;
+  if(diff<=0){el.textContent='happening now!';return;}
+  const days=Math.floor(diff/86400000);
+  const yrs=Math.floor(days/365);
+  const rem=days%365;
+  el.textContent=yrs>0?yrs+'y '+rem+'d away':days+' days away';
+}
+
+function calcSavingsWeeks(){
+  const target=parseInt(document.getElementById('savings-calc-target')?.value)||0;
+  const weekly=parseInt(document.getElementById('savings-calc-weekly')?.value)||0;
+  const el=document.getElementById('savings-calc-result');
+  if(!el)return;
+  if(!target||!weekly){el.textContent='';return;}
+  const weeks=Math.ceil(target/weekly);
+  const months=(weeks/4.33).toFixed(1);
+  el.textContent=`That's ${weeks} week${weeks!==1?'s':''} (about ${months} months) of tasks!`;
+  el.style.color='var(--accent)';
+}
+
+function toggleLearn(i){
+  const el=document.getElementById('learn-body-'+i);
+  el.classList.toggle('open');
+  // Update halving countdown whenever the learn screen is opened
+  setTimeout(updateHalvingCountdown, 50);
+}
+
+// ===== PARENT WALLET SCREEN =====
+function openParentWallet(){
+  if(!state.parentMode){ alert('Turn on parent mode first to view the parent wallet.'); return; }
+  hide('home'); show('parent-wallet-screen');
+  updateParentWalletDisplay();
+}
+
+function renderParentWalletHistory(){
+  const el=document.getElementById('pw-history-list');
+  if(!el)return;
+  const hist=state.parentWalletHistory||[];
+  if(!hist.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px;">No payments yet</div>`;return;}
+  el.innerHTML=[...hist].reverse().map(tx=>{
+    const d=new Date(tx.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    const f=satsToGbp(tx.sats);
+    return `<div class="tx-item">
+      <div class="tx-icon spend">⚡</div>
+      <div class="tx-desc"><div class="tx-desc-name">${tx.desc}</div><div class="tx-desc-date">${d}</div></div>
+      <div style="text-align:right;">
+        <div class="tx-amount spend">-${fmtSats(tx.sats)} sats</div>
+        ${f?`<div style="font-size:11px;color:var(--text3);">≈ £${f.toFixed(2)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function topUpParentWallet(){
+  state.parentWalletSats=10000000;
+  if(!state.parentWalletHistory)state.parentWalletHistory=[];
+  state.parentWalletHistory.push({date:Date.now(),desc:'Top-up (reset)',sats:0});
+  save(); updateParentWalletDisplay();
+}
+
+// ===== MODALS =====
+function resetWeek(){
+  const k=kid();
+  const completed=k.chores.filter(c=>c.done).length;
+  if(completed===0){alert('No completed tasks to reset.');return;}
+  if(!confirm('Clear all completed tasks? Recurring tasks will be unticked and kept.'))return;
+  // Remove non-recurring completed tasks; untick recurring ones
+  k.chores=k.chores.filter(c=>!c.done||c.recurring);
+  k.chores.forEach(c=>{if(c.recurring)c.done=false;});
+  invoiceStage=0;
+  document.getElementById('invoice-box').classList.remove('active');
+  save(); renderKid();
+}
+
+function deleteKid(){
+  const k=kid();
+  if(!confirm(`Remove ${k.name} and all their data? This cannot be undone.`))return;
+  state.kids=state.kids.filter(x=>x.id!==currentKidId);
+  save();
+  goHome();
+}
+
+function openAddKidModal(){
+  document.getElementById('new-kid-name').value=''; selectedAvatar='🦊';
+  const avs=['🦊','🐻','🐼','🦁','🐯','🐨','🦋','🦄','🐉','🦕','🐸','🐬','🦅','🦜','🦩','🐧','🌙','⭐','🌈','🎮'];
+  document.getElementById('avatar-picker').innerHTML=avs.map(e=>
+    `<button class="emoji-opt${e===selectedAvatar?' selected':''}" data-emoji="${e}">${e}</button>`).join('');
+  document.getElementById('avatar-picker').onclick=function(ev){
+    const btn=ev.target.closest('.emoji-opt');
+    if(!btn)return;
+    selectedAvatar=btn.dataset.emoji;
+    document.querySelectorAll('#avatar-picker .emoji-opt').forEach(b=>b.classList.toggle('selected',b===btn));
+  };
+  openModal('add-kid-modal');
+}
+
+function pickAvatar(e){selectedAvatar=e;document.querySelectorAll('#avatar-picker .emoji-opt').forEach(b=>b.classList.toggle('selected',b.textContent===e));}
+
+function saveNewKid(){
+  const name=document.getElementById('new-kid-name').value.trim();
+  if(!name)return;
+  state.kids.push({id:'kid'+Date.now(),name,avatar:selectedAvatar,balance:0,totalEarned:0,streak:0,firstEarnedPrice:null,
+    chores:[{id:'c'+Date.now(),name:'Tidy bedroom',sats:300,done:false}],goals:[],spends:[],history:[]});
+  save(); closeModal('add-kid-modal'); renderHome();
+}
+
+function openAddGoalModal(){
+  document.getElementById('goal-name-input').value='';
+  document.getElementById('goal-cost-input').value='';
+  document.getElementById('goal-sats-preview').textContent='—';
+  selectedGoalEmoji='🎮';
+  const ges=['🎮','🎯','🏆','🚀','🎸','🎨','🏄','🎁','🧸','🎲','🚂','🦖','🎪','🌍','📚','⚽','🎭','🍕','🎂','🏕️'];
+  document.getElementById('goal-emoji-picker').innerHTML=ges.map(e=>
+    `<button class="emoji-opt${e===selectedGoalEmoji?' selected':''}" data-emoji="${e}">${e}</button>`).join('');
+  document.getElementById('goal-emoji-picker').onclick=function(ev){
+    const btn=ev.target.closest('.emoji-opt');
+    if(!btn)return;
+    selectedGoalEmoji=btn.dataset.emoji;
+    document.querySelectorAll('#goal-emoji-picker .emoji-opt').forEach(b=>b.classList.toggle('selected',b===btn));
+  };
+  document.getElementById('goal-cost-input').oninput=function(){
+    const g=parseFloat(this.value);
+    if(g&&btcPriceGbp)document.getElementById('goal-sats-preview').textContent=fmtSats(gbpToSats(g))+' sats';
+    else document.getElementById('goal-sats-preview').textContent='—';
+  };
+  openModal('add-goal-modal');
+}
+
+function pickGoalEmoji(e){selectedGoalEmoji=e;document.querySelectorAll('#goal-emoji-picker .emoji-opt').forEach(b=>b.classList.toggle('selected',b.textContent===e));}
+
+function saveGoal(){
+  const name=document.getElementById('goal-name-input').value.trim();
+  const costGbp=parseFloat(document.getElementById('goal-cost-input').value);
+  if(!name||!costGbp||costGbp<=0)return;
+  const k=kid();
+  k.goals.push({id:'g'+Date.now(),name,emoji:selectedGoalEmoji,costGbp,targetSats:btcPriceGbp?gbpToSats(costGbp):0,createdAt:Date.now()});
+  save(); closeModal('add-goal-modal'); renderGoals(k);
+}
+
+let choreRecurring = false;
+function toggleChoreRecurring(){
+  choreRecurring = !choreRecurring;
+  const tog = document.getElementById('chore-recurring-toggle');
+  if(tog) tog.classList.toggle('on', choreRecurring);
+}
+function openAddChoreModal(){
+  document.getElementById('chore-name-input').value='';
+  document.getElementById('chore-sats-input').value='';
+  choreRecurring = false;
+  const tog = document.getElementById('chore-recurring-toggle');
+  if(tog) tog.classList.remove('on');
+  openModal('add-chore-modal');
+}
+
+function saveChore(){
+  const name=document.getElementById('chore-name-input').value.trim();
+  const sats=parseInt(document.getElementById('chore-sats-input').value);
+  if(!name||!sats||sats<=0)return;
+  const k=kid();
+  k.chores.push({id:'c'+Date.now(),name,sats,done:false,recurring:choreRecurring});
+  save(); closeModal('add-chore-modal'); renderChores(k); updatePayBtn();
+}
+
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m&&m.id!=='onboarding-modal')m.classList.remove('active');}));
+
+
+// ===== ONBOARDING =====
+let obStep=0;
+const OB_TOTAL=4;
+function initOnboarding(){
+  if(state.seenOnboarding) return; // modal already hidden (no active class)
+  const el=document.getElementById('onboarding-modal');
+  if(el) el.classList.add('active');
+  renderObDots();
+}
+function renderObDots(){
+  const el=document.getElementById('ob-dots');
+  if(!el)return;
+  el.innerHTML=Array.from({length:OB_TOTAL},(_,i)=>
+    `<div style="width:8px;height:8px;border-radius:50%;background:${i===obStep?'var(--accent)':'var(--text3)'};transition:background .2s;"></div>`
+  ).join('');
+  document.getElementById('ob-next-btn').textContent=obStep===OB_TOTAL-1?'Get started ⚡':'Next →';
+}
+function onboardNext(){
+  if(obStep<OB_TOTAL-1){
+    document.getElementById('ob-'+obStep).style.display='none';
+    obStep++;
+    document.getElementById('ob-'+obStep).style.display='block';
+    renderObDots();
+  } else {
+    closeOnboarding();
+  }
+}
+function closeOnboarding(){
+  state.seenOnboarding=true; save();
+  document.getElementById('onboarding-modal').classList.remove('active');
+}
+
+// ===== SETTINGS =====
+function exportBackup(){
+  const data=JSON.stringify(state,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='satskids-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(ev){
+  const file=ev.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const imported=JSON.parse(e.target.result);
+      if(!imported.kids||!Array.isArray(imported.kids))throw new Error('Invalid backup file');
+      if(!confirm('This will replace ALL current data with the backup. Are you sure?'))return;
+      localStorage.setItem('satskids_v2',JSON.stringify(imported));
+      location.reload();
+    }catch(err){
+      alert('Could not import backup: '+err.message);
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value=''; // reset so same file can be re-imported
+}
+
+function openSettings(){
+  if(!state.parentMode){
+    alert('Turn on parent mode first to access settings.');
+    return;
+  }
+  document.getElementById('lnbits-url').value=state.lnbitsUrl||'';
+  document.getElementById('lnbits-key').value=state.lnbitsKey||'';
+  document.getElementById('lnbits-status').textContent=
+    state.lnbitsUrl?'⚡ Connected to: '+state.lnbitsUrl:'○ Simulated mode (no backend connected)';
+  document.getElementById('lnbits-status').style.color=state.lnbitsUrl?'var(--green)':'var(--text3)';
+  openModal('settings-modal');
+}
+
+async function testLNbitsConnection(){
+  const url=document.getElementById('lnbits-url').value.trim().replace(/\/$/,'');
+  const key=document.getElementById('lnbits-key').value.trim();
+  const el=document.getElementById('lnbits-status');
+  if(!url||!key){el.textContent='Enter URL and key first.';el.style.color='var(--red)';return;}
+  el.textContent='Testing…';el.style.color='var(--text2)';
+  try{
+    const r=await fetch(url+'/api/v1/wallet',{headers:{'X-Api-Key':key},signal:AbortSignal.timeout(6000)});
+    const d=await r.json();
+    if(d.name){
+      el.textContent='✓ Connected! Wallet: '+d.name+' ('+Math.round(d.balance/1000)+' sats)';
+      el.style.color='var(--green)';
+    } else {
+      el.textContent='✗ Connected but unexpected response. Check your key.';
+      el.style.color='var(--red)';
+    }
+  }catch(e){
+    el.textContent='✗ Could not connect. Check URL and try again.';
+    el.style.color='var(--red)';
+  }
+}
+
+function saveLNbitsSettings(){
+  const url=document.getElementById('lnbits-url').value.trim().replace(/\/$/,'');
+  const key=document.getElementById('lnbits-key').value.trim();
+  state.lnbitsUrl=url||null;
+  state.lnbitsKey=key||null;
+  save();
+  closeModal('settings-modal');
+}
+
+function resetAll(){
+  localStorage.removeItem('satskids_v2');
+  location.reload();
+}
+
+
+// ===== SOUND ENGINE (Web Audio API — no external files) =====
+let audioCtx = null;
+function getAudio(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playSound(type){
+  try{
+    const ctx = getAudio();
+    if(type === 'pay'){
+      // Ascending triumphant chime — C E G C
+      const notes = [523, 659, 784, 1047];
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const t = ctx.currentTime + i * 0.13;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.3, t + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+        osc.start(t); osc.stop(t + 0.5);
+      });
+      // Extra sparkle layer
+      setTimeout(()=>{
+        try{
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.connect(gain2); gain2.connect(ctx.destination);
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(1200, ctx.currentTime);
+          osc2.frequency.exponentialRampToValueAtTime(2400, ctx.currentTime + 0.3);
+          gain2.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+          osc2.start(); osc2.stop(ctx.currentTime + 0.4);
+        }catch(e){}
+      }, 400);
+    } else if(type === 'spend'){
+      // Descending whoosh — money leaving
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(400, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.4);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+      osc.start(); osc.stop(ctx.currentTime + 0.45);
+    } else if(type === 'tick'){
+      // Soft click for ticking a task
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      osc.start(); osc.stop(ctx.currentTime + 0.12);
+    }
+  }catch(e){}
+}
+
+// ===== INIT =====
+function init(){
+  fetchPrice();
+  setInterval(fetchPrice,60000);
+  renderHome();
+  initOnboarding();
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+
+
+<!-- SPEND ANIMATION OVERLAY -->
+<div id="spend-anim-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;">
+  <div style="position:relative;z-index:5;text-align:center;">
+    <span id="spend-anim-icon" style="font-size:72px;display:block;animation:bolt-pop .4s cubic-bezier(.34,1.56,.64,1) both;">💸</span>
+    <span id="spend-anim-amount" style="font-family:'Space Mono',monospace;font-size:42px;font-weight:700;color:var(--red);display:block;animation:amount-slide .4s ease .3s both;"></span>
+    <div id="spend-anim-label" style="font-size:18px;font-weight:700;color:var(--text);animation:amount-slide .4s ease .5s both;margin-top:6px;"></div>
+    <div id="spend-anim-sub" style="font-size:13px;color:var(--text2);animation:amount-slide .4s ease .65s both;margin-top:4px;"></div>
+  </div>
+</div>
+<!-- ONBOARDING MODAL -->
+<div class="modal-overlay" id="onboarding-modal">
+  <div class="modal-sheet" style="border-radius:24px;max-width:520px;margin:20px;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <span style="font-size:48px;display:block;margin-bottom:8px;animation:pulse-bolt 2s ease-in-out infinite;filter:drop-shadow(0 0 16px var(--accent))">⚡</span>
+      <div style="font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Welcome to SatsKids!</div>
+    </div>
+    <div id="onboard-steps">
+      <div class="onboard-step active" id="ob-0">
+        <div style="font-size:32px;text-align:center;margin-bottom:12px;">👨‍👧‍👦</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:10px;">A Bitcoin savings app for families</div>
+        <p class="learn-text">SatsKids helps kids learn about Bitcoin, saving, and the value of money, through tasks, savings goals, and weekly sat payments.</p>
+        <p class="learn-text" style="margin-top:8px;">Sats are <strong>simulated</strong> by default. Real lessons, no real money, no real money needed to start.</p>
+      </div>
+      <div class="onboard-step" id="ob-1" style="display:none;">
+        <div style="font-size:32px;text-align:center;margin-bottom:12px;">⚡</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:10px;">How it works</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:var(--bg3);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;"><span style="font-size:20px;">📋</span><span style="font-size:13px;color:var(--text2);">Kids tick off their chores during the week</span></div>
+          <div style="background:var(--bg3);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;"><span style="font-size:20px;">🗓️</span><span style="font-size:13px;color:var(--text2);">Saturday morning: parent reviews and approves</span></div>
+          <div style="background:var(--bg3);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;"><span style="font-size:20px;">⚡</span><span style="font-size:13px;color:var(--text2);">Generate an invoice and "pay" with the animation</span></div>
+          <div style="background:var(--bg3);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;"><span style="font-size:20px;">📈</span><span style="font-size:13px;color:var(--text2);">Kids watch their balance grow and learn about Bitcoin price</span></div>
+        </div>
+      </div>
+      <div class="onboard-step" id="ob-2" style="display:none;">
+        <div style="font-size:32px;text-align:center;margin-bottom:12px;">🔐</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:10px;">Set up parent mode</div>
+        <p class="learn-text">Parent mode lets you add chores, set sat values, pay invoices, and manage the app. It's protected by a PIN you set yourself.</p>
+        <p class="learn-text" style="margin-top:8px;">Kids can view their balance and tick tasks but can't pay themselves or change settings.</p>
+        <div style="background:rgba(247,147,26,.1);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:12px;margin-top:12px;font-size:13px;">💡 Turn on <strong>Parent mode</strong> on the home screen to get started. You'll set your PIN on first use.</div>
+      </div>
+      <div class="onboard-step" id="ob-3" style="display:none;">
+        <div style="font-size:32px;text-align:center;margin-bottom:12px;">🌐</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:10px;">Want to use real sats?</div>
+        <p class="learn-text">By default everything is simulated. Great for learning. When you're ready to use real Bitcoin Lightning payments, you can connect to an <strong>LNbits</strong> backend.</p>
+        <p class="learn-text" style="margin-top:8px;">Tap ⚙️ Settings on the home screen to configure a Lightning connection. This is optional. The app works fine without it.</p>
+        <div style="background:rgba(0,230,118,.08);border-left:3px solid var(--green);border-radius:0 10px 10px 0;padding:12px;margin-top:12px;font-size:13px;">🎓 We recommend starting in simulated mode and switching to real sats once the kids understand how it works.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;margin:16px 0 8px;" id="ob-dots"></div>
+    <button class="modal-btn" id="ob-next-btn" onclick="onboardNext()">Next →</button>
+    <button class="modal-btn-sec" onclick="closeOnboarding()" id="ob-skip-btn">Skip intro</button>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ Settings</div>
+    <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Lightning Backend (optional)</div>
+    <div class="info-box">Connect to a real <strong>LNbits</strong> instance to use actual Bitcoin Lightning payments instead of simulated sats. Leave blank to keep using simulated mode.</div>
+    <div class="field">
+      <label>LNbits URL</label>
+      <input type="url" id="lnbits-url" placeholder="https://your-lnbits-instance.com" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Admin API Key</label>
+      <input type="password" id="lnbits-key" placeholder="Your LNbits admin key" autocomplete="off">
+    </div>
+    <div id="lnbits-status" style="font-size:13px;margin-bottom:12px;min-height:20px;"></div>
+    <button class="modal-btn" onclick="testLNbitsConnection()" style="background:var(--bg3);color:var(--text);margin-bottom:0;">🔌 Test connection</button>
+    <button class="modal-btn" onclick="saveLNbitsSettings()">Save settings</button>
+    <div style="height:1px;background:var(--bg3);margin:16px 0;"></div>
+    <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Backup &amp; Restore</div>
+    <div class="info-box">Export saves all wallets, balances, tasks and history to a file. Import restores from a previous export.</div>
+    <button class="modal-btn" onclick="exportBackup()" style="background:var(--bg3);color:var(--text);margin-bottom:0;">💾 Export backup</button>
+    <button class="modal-btn" onclick="document.getElementById('import-file').click()" style="background:var(--bg3);color:var(--text);margin-top:8px;">📂 Import backup</button>
+    <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importBackup(event)">
+    <div style="height:1px;background:var(--bg3);margin:16px 0;"></div>
+    <div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Danger zone</div>
+    <button class="modal-btn-sec" onclick="if(confirm('Reset ALL data? This cannot be undone.'))resetAll()">🗑️ Reset all data</button>
+    <button class="modal-btn-sec" style="margin-top:8px;" onclick="closeModal('settings-modal')">Close</button>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bg3);text-align:center;">
+      <div style="font-size:11px;color:var(--text3);line-height:1.8;">
+        SatsKids is open source · <a href="https://github.com/Bitcoin-Lebowski/satskids" target="_blank" style="color:var(--accent);text-decoration:none;">GitHub</a> · MIT Licence<br>
+        Built with ⚡ to help kids learn about Bitcoin<br>
+        <span style="font-size:10px;">Not financial advice · Simulated sats by default</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
