@@ -4,8 +4,10 @@
 
 ---
 
-**Live demo:** [https://Bitcoin-Lebowski.github.io/satskids/](https://Bitcoin-Lebowski.github.io/satskids/)
+**Live app:** [https://Bitcoin-Lebowski.github.io/satskids/](https://Bitcoin-Lebowski.github.io/satskids/)
 **Source:** [github.com/Bitcoin-Lebowski/satskids](https://github.com/Bitcoin-Lebowski/satskids)
+
+> ⚠️ **IMPORTANT: Real Lightning payments are NOT functional in the current version.** All sats are simulated. The settings screen accepts LNbits connection details but the actual payment flow is not yet wired up. Do not expect real Bitcoin to move. See the [Connecting real Lightning payments](#connecting-real-lightning-payments-advanced) section for full details of what is and isn't built.
 
 ---
 
@@ -87,7 +89,11 @@ Everything is stored in your browser's `localStorage`. Nothing is sent anywhere.
 
 ## Connecting real Lightning payments (advanced)
 
-> This feature is in the settings UI but the payment flow is not yet wired up. The instructions below describe what is needed and what is coming.
+> ⛔ **THIS DOES NOT WORK YET.**
+>
+> The settings screen lets you enter an LNbits URL and API key, and the "Test connection" button will verify it reaches your server. That is all. When you tap "Pay invoice" in the app, it runs a simulated animation regardless of whether a backend is configured. No real sats move. No real invoice is generated. No real payment is made.
+>
+> This section documents what needs to be built and how the intended architecture works, for developers who want to contribute that functionality.
 
 SatsKids is designed to connect to **LNbits** as a Lightning backend, which gives each child a real isolated wallet backed by actual Bitcoin.
 
@@ -114,7 +120,7 @@ If you use real Lightning payments, please be aware:
 
 ### What needs to be built for real payments
 
-The following is planned for a future version:
+**None of the following exists yet.** The following is what a developer would need to build to make real Lightning payments work:
 
 1. **Invoice generation** — call `POST /api/v1/invoices` on each child's LNbits wallet to generate a real bolt11 invoice and display it as a scannable QR code
 2. **Payment** — call `POST /api/v1/payments` on the parent's LNbits wallet to pay the invoice
