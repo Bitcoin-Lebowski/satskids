@@ -2110,7 +2110,7 @@ function advanceWeekIfNeeded(){
 
 
 // ===== CALENDAR =====
-function renderCalendar(){
+function renderCalendar(keepOpenDate){
   const k=kid(); if(!k)return;
   const ws=state.weekStart||toISODate(getMonday(new Date()));
   const weekDays=getWeekDays(ws);
@@ -2183,9 +2183,11 @@ function renderCalendar(){
   }
 
   el.innerHTML=html;
-  // Auto-open today
-  const todayEl=document.getElementById('cal-'+today);
-  if(todayEl) todayEl.classList.add('open');
+  // Open the specified day (after tick), or today by default
+  const dateToOpen=keepOpenDate||today;
+  const openEl=document.getElementById('cal-'+dateToOpen);
+  if(openEl) openEl.classList.add('open');
+  // If keepOpenDate is a past day, also make sure today is visible but not forced open
 }
 
 function toggleChoreWeekly(choreId){
@@ -2195,7 +2197,7 @@ function toggleChoreWeekly(choreId){
   c.completions={};
   if(!done){ c.completions[todayISO()]=true; playSound('tick'); }
   c.done=!done;
-  save(); renderCalendar(); renderChores(k); updatePayBtn();
+  save(); renderCalendar(null); renderChores(k); updatePayBtn();
 }
 
 function toggleCalDay(id){
@@ -2214,7 +2216,10 @@ function toggleChoreOnDay(choreId, dateISO){
     if(c.completions[dateISO]) playSound('tick');
   }
   c.done=c.type==='weekly'?Object.values(c.completions).some(v=>v):!!c.completions[todayISO()];
-  save(); renderCalendar(); renderChores(k); updatePayBtn();
+  save();
+  // Re-render keeping the tapped day open
+  renderCalendar(dateISO);
+  renderChores(k); updatePayBtn();
 }
 
 // ===== WEEKLY REVIEW WIZARD =====
