@@ -40,7 +40,7 @@ No Wi-Fi needed to use the app (though the live BTC price ticker requires an int
 ### For kids
 - Personal wallet with sat balance and live £/$ equivalent
 - Weekly task checklist — tick off tasks during the week
-- Savings goals — enter what they're saving for and the £ cost, converts to sats at today's price
+- Savings goals — enter what they're saving for and the cost in GBP, USD, EUR, THB, or sats directly, converts to sats at today's live price
 - "How many weeks to reach my goal?" calculator
 - Transaction history
 - Bitcoin Stacking tracker — see current value vs. when first earned, gain/loss
