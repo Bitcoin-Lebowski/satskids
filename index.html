@@ -237,6 +237,20 @@ body::before{content:'';position:fixed;inset:0;background-image:
 /* BADGES */
 .streak-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#ff9800,#ff5722);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;color:white;margin-bottom:16px;}
 .badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.cal-day{background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px;overflow:hidden;border:1px solid var(--bg3);}
+.cal-day-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;}
+.cal-day-header:hover{background:var(--card2);}
+.cal-day-name{font-weight:700;font-size:14px;}
+.cal-day-name.today{color:var(--accent);}
+.cal-day-summary{font-size:12px;color:var(--text2);}
+.cal-day-tasks{padding:0 14px 10px;display:none;}
+.cal-day-tasks.open{display:block;}
+.cal-task-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--bg3);cursor:pointer;}
+.cal-task-row:last-child{border-bottom:none;}
+.cal-task-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--text3);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.cal-task-check.done{background:var(--green2);border-color:var(--green2);color:white;}
+.cal-task-name{flex:1;font-size:13px;}
+.cal-task-sats{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);}
 .curr-btn{background:var(--bg3);border:1px solid var(--text3);border-radius:20px;padding:6px 12px;color:var(--text2);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;}
 .curr-btn.active{background:var(--accent);border-color:var(--accent);color:#0d0d1a;}
 .badge{background:var(--bg3);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:5px;}
@@ -318,6 +332,11 @@ body::before{content:'';position:fixed;inset:0;background-image:
     <button class="nav-btn" onclick="openParentWallet()">👑 Parent wallet</button>
     <button class="nav-btn" onclick="openSettings()">⚙️ Settings</button>
   </div>
+  <div id="review-btn-wrap" style="width:100%;max-width:520px;display:none;animation:fadeUp .5s ease .5s both;">
+    <button onclick="startWeeklyReview()" style="width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);padding:16px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:#0d0d1a;cursor:pointer;box-shadow:0 4px 20px var(--glow);">
+      📋 Start Weekly Review
+    </button>
+  </div>
   <div class="mode-toggle">
     <span>Parent mode</span>
     <div class="toggle-switch" id="parent-toggle" onclick="requestParentMode()">
@@ -347,6 +366,7 @@ body::before{content:'';position:fixed;inset:0;background-image:
   </div>
   <div class="kid-tabs">
     <button class="kid-tab active" onclick="showTab('chores')">⚡ Tasks</button>
+    <button class="kid-tab" onclick="showTab('calendar')">📅 Week</button>
     <button class="kid-tab" onclick="showTab('goals')">🎯 Goals</button>
     <button class="kid-tab" onclick="showTab('spend')">💸 Spend</button>
     <button class="kid-tab" onclick="showTab('history')">📜 History</button>
@@ -360,6 +380,11 @@ body::before{content:'';position:fixed;inset:0;background-image:
       <button class="add-goal-btn" onclick="resetWeek()" style="margin-top:8px;border-color:var(--red);color:var(--red);">🗓️ Reset week (clear completed)</button>
     </div>
   </div>
+  <div class="tab-content" id="tab-calendar">
+    <div class="section-title">This week</div>
+    <div id="week-calendar"></div>
+  </div>
+
   <div class="tab-content" id="tab-goals">
     <div class="section-title">Saving for</div>
     <div id="goals-list"></div>
@@ -574,14 +599,52 @@ body::before{content:'';position:fixed;inset:0;background-image:
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">Add a task</div>
-    <div class="field"><label>Task name</label><input type="text" id="chore-name-input" placeholder="e.g. Tidy bedroom" maxlength="40"></div>
-    <div class="field"><label>Reward in sats</label><input type="number" id="chore-sats-input" placeholder="e.g. 250" min="1" step="1"></div>
-    <div class="field" style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:var(--radius-sm);padding:12px 14px;">
-      <div>
-        <div style="font-size:14px;font-weight:700;">🔁 Recurring task</div>
-        <div style="font-size:12px;color:var(--text2);margin-top:2px;">Auto-restore each week on reset</div>
+    <div class="field"><label>Task name</label><input type="text" id="chore-name-input" placeholder="e.g. Make bed" maxlength="40"></div>
+    <div class="field">
+      <label>Task type</label>
+      <div style="display:flex;gap:6px;">
+        <button class="curr-btn active" id="type-btn-daily" onclick="selectTaskType('daily')">⚡ Daily</button>
+        <button class="curr-btn" id="type-btn-weekly" onclick="selectTaskType('weekly')">📅 Weekly</button>
       </div>
-      <div class="toggle-switch" id="chore-recurring-toggle" onclick="toggleChoreRecurring()"><div class="toggle-knob"></div></div>
+    </div>
+    <div id="chore-schedule-section">
+      <div class="field">
+        <label>Schedule</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="curr-btn active" id="sched-btn-daily" onclick="selectSchedule('daily')">Every day</button>
+          <button class="curr-btn" id="sched-btn-weekdays" onclick="selectSchedule('weekdays')">Weekdays</button>
+          <button class="curr-btn" id="sched-btn-custom" onclick="selectSchedule('custom')">Custom</button>
+        </div>
+      </div>
+      <div id="custom-days-section" style="display:none;">
+        <div class="field">
+          <label>Which days?</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="custom-days-picker">
+            <button class="curr-btn" data-day="0" onclick="toggleCustomDay(0)">Mon</button>
+            <button class="curr-btn" data-day="1" onclick="toggleCustomDay(1)">Tue</button>
+            <button class="curr-btn" data-day="2" onclick="toggleCustomDay(2)">Wed</button>
+            <button class="curr-btn" data-day="3" onclick="toggleCustomDay(3)">Thu</button>
+            <button class="curr-btn" data-day="4" onclick="toggleCustomDay(4)">Fri</button>
+            <button class="curr-btn" data-day="5" onclick="toggleCustomDay(5)">Sat</button>
+            <button class="curr-btn" data-day="6" onclick="toggleCustomDay(6)">Sun</button>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label id="chore-sats-label">Sats per day completed</label><input type="number" id="chore-sats-input" placeholder="e.g. 50" min="1" step="1" value="50"></div>
+      <div class="field" style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:var(--radius-sm);padding:12px 14px;">
+        <div>
+          <div style="font-size:14px;font-weight:700;">🎯 Offer challenge?</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px;">Kid can opt-in for 2× sats or nothing</div>
+        </div>
+        <div class="toggle-switch on" id="chore-challenge-toggle" onclick="toggleChallengeOffer()"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+    <div id="chore-weekly-section" style="display:none;">
+      <div class="field"><label>Sats for completing this task</label><input type="number" id="chore-sats-weekly-input" placeholder="e.g. 300" min="1" step="1" value="300"></div>
+    </div>
+    <div id="copy-to-section" style="display:none;margin-bottom:12px;">
+      <div class="section-title" style="margin-bottom:8px;">Also add to</div>
+      <div id="copy-to-kids" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
     </div>
     <button class="modal-btn" onclick="saveChore()">Add task ⚡</button>
     <button class="modal-btn-sec" onclick="closeModal('add-chore-modal')">Cancel</button>
@@ -607,16 +670,16 @@ const DEFAULT_STATE = {
   kids:[
     {id:'kid_alice',name:'Alice',avatar:'🦊',balance:0,totalEarned:0,streak:0,firstEarnedPrice:null,
       chores:[
-        {id:'ca1',name:'Tidy bedroom',sats:300,done:false,recurring:true},
-        {id:'ca2',name:'Empty dishwasher',sats:200,done:false,recurring:true},
-        {id:'ca3',name:'Read for 20 mins',sats:250,done:false,recurring:true},
+        {id:'ca1',name:'Tidy bedroom',sats:300,type:'weekly',schedule:'weekly',days:[1,2,3,4,5,6,7],allOrNothing:true,offerChallenge:false,challengeActive:false,completions:{},recurring:true},
+        {id:'ca2',name:'Make bed',sats:50,type:'daily',schedule:'weekdays',days:[1,2,3,4,5],allOrNothing:false,offerChallenge:true,challengeActive:false,completions:{},recurring:true},
+        {id:'ca3',name:'Read for 20 mins',sats:50,type:'daily',schedule:'daily',days:[0,1,2,3,4,5,6],allOrNothing:false,offerChallenge:true,challengeActive:false,completions:{},recurring:true},
       ],
       goals:[],spends:[],history:[]},
     {id:'kid_bob',name:'Bob',avatar:'🐻',balance:0,totalEarned:0,streak:0,firstEarnedPrice:null,
       chores:[
-        {id:'cb1',name:'Tidy bedroom',sats:300,done:false,recurring:true},
-        {id:'cb2',name:'Help with dinner',sats:250,done:false,recurring:true},
-        {id:'cb3',name:'Read for 20 mins',sats:250,done:false,recurring:true},
+        {id:'cb1',name:'Tidy bedroom',sats:300,type:'weekly',schedule:'weekly',days:[1,2,3,4,5,6,7],allOrNothing:true,offerChallenge:false,challengeActive:false,completions:{},recurring:true},
+        {id:'cb2',name:'Make bed',sats:50,type:'daily',schedule:'weekdays',days:[1,2,3,4,5],allOrNothing:false,offerChallenge:true,challengeActive:false,completions:{},recurring:true},
+        {id:'cb3',name:'Help with dinner',sats:50,type:'daily',schedule:'weekdays',days:[1,2,3,4,5],allOrNothing:false,offerChallenge:true,challengeActive:false,completions:{},recurring:true},
       ],
       goals:[],spends:[],history:[]},
   ],
@@ -625,12 +688,14 @@ const DEFAULT_STATE = {
   seenOnboarding:false,
   lnbitsUrl:null,
   lnbitsKey:null,
+  weekStart:null, // ISO date string of current week's Monday
   parentWalletSats:10000000,
   parentWalletHistory:[],
 };
 
 let state = JSON.parse(localStorage.getItem('satskids_v2')||'null') || JSON.parse(JSON.stringify(DEFAULT_STATE));
 let currentKidId=null, btcPriceGbp=null, btcPriceUsd=null, btcPriceEur=null, btcPriceTHB=null;
+let editingChoreId=null;
 let selectedAvatar='🦊', selectedGoalEmoji='🎮';
 let invoiceStage=0; // 0=idle,1=generated,2=paying
 let currentSpendGoalId=null;
@@ -812,6 +877,7 @@ function renderHome(){
   }
   g.innerHTML=h;
   document.getElementById('parent-wallet-home').style.display=state.parentMode?'block':'none';
+  const rb=document.getElementById('review-btn-wrap'); if(rb)rb.style.display=state.parentMode?'block':'none';
   updateParentWalletDisplay();
   const tog=document.getElementById('parent-toggle');
   const lbl=document.getElementById('parent-mode-label');
@@ -899,11 +965,12 @@ function showTab(name){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.kid-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  const tabs=['chores','goals','spend','history','invest'];
+  const tabs=['chores','calendar','goals','spend','history','invest'];
   const idx=tabs.indexOf(name);
-  document.querySelectorAll('.kid-tab')[idx].classList.add('active');
+  if(idx>-1) document.querySelectorAll('.kid-tab')[idx].classList.add('active');
   if(name==='invest')renderInvest();
   if(name==='spend')renderSpends();
+  if(name==='calendar')renderCalendar();
 }
 
 function renderKid(){
@@ -937,22 +1004,68 @@ function renderBadges(k){
 
 function renderChores(k){
   const el=document.getElementById('chore-list');
-  if(!k.chores.length){el.innerHTML=`<div class="empty-state"><span class="empty-state-icon">📋</span><div class="empty-state-text">No tasks yet!</div></div>`;return;}
-  el.innerHTML=k.chores.map(c=>`
-    <div class="chore-item ${c.done?'done':''}" onclick="toggleChore('${c.id}')">
-      <div class="chore-check">${c.done?'✓':''}</div>
-      <div class="chore-name">${c.name}${c.recurring?' <span style="font-size:10px;color:var(--text3);">🔁</span>':''}</div>
-      <div class="chore-sats">+${fmtSats(c.sats)}</div>
-      ${state.parentMode?`<button class="del-btn" onclick="event.stopPropagation();deleteChore('${c.id}')">✕</button>`:''}
-    </div>`).join('');
+  if(!k.chores.length){
+    el.innerHTML=`<div class="empty-state"><span class="empty-state-icon">📋</span><div class="empty-state-text">No tasks yet — add one below!</div></div>`;
+    return;
+  }
+  const weekDays=getWeekDays(state.weekStart||toISODate(getMonday(new Date())));
+  // Sort: weekly first, then daily
+  const sorted=[...k.chores].sort((a,b)=>(a.type==='weekly'?0:1)-(b.type==='weekly'?0:1));
+  el.innerHTML=sorted.map(c=>{
+    const isWeekly=c.type==='weekly';
+    const earnings=calcTaskEarnings(c,weekDays);
+    const doneDays=isWeekly?0:weekDays.filter(d=>isTaskDueOnDay(c,d)&&c.completions&&c.completions[d]).length;
+    const dueDays=isWeekly?0:weekDays.filter(d=>isTaskDueOnDay(c,d)).length;
+    const weeklyDone=isWeekly&&c.completions&&Object.values(c.completions).some(v=>v);
+    const schedLabel=isWeekly?'📅 Weekly task':
+      c.schedule==='daily'?'⚡ Every day':
+      c.schedule==='weekdays'?'⚡ Weekdays':
+      '⚡ '+(c.days||[]).map(d=>['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d]).join(', ');
+    const challengeBadge=c.challengeActive?
+      '<span style="font-size:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border-radius:8px;padding:1px 6px;margin-left:4px;">🎯 2×</span>':'';
+    const statusBadge=isWeekly?
+      `<span style="font-size:11px;color:${weeklyDone?'var(--green)':'var(--text3)'};">${weeklyDone?'✅ Done':'Not done'}</span>`:
+      `<span style="font-size:11px;color:var(--text2);">${doneDays}/${dueDays} days this week</span>`;
+    const editBtn=state.parentMode?`<button class="del-btn" style="color:var(--blue);" onclick="event.stopPropagation();editChore('${c.id}')">✎</button>`:'';
+    const delBtn=state.parentMode?`<button class="del-btn" onclick="event.stopPropagation();deleteChore('${c.id}')">✕</button>`:'';
+    return `<div class="chore-item" style="cursor:default;">
+      <div style="flex:1;min-width:0;">
+        <div class="chore-name">${c.name}${challengeBadge}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:8px;align-items:center;">
+          <span>${schedLabel}</span>
+          <span style="color:var(--text3);">·</span>
+          ${statusBadge}
+        </div>
+      </div>
+      <div class="chore-sats" style="margin-right:4px;">+${fmtSats(isWeekly?c.sats:c.sats*(c.challengeActive?2:1))}<span style="font-size:9px;color:var(--text3);">${isWeekly?'':'/day'}</span></div>
+      ${editBtn}
+      ${delBtn}
+    </div>`;
+  }).join('');
+  // Tip pointing to week tab
+  el.innerHTML+=`<div style="margin-top:12px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius-sm);font-size:12px;color:var(--text2);">
+    ✏️ Tick tasks in the <strong style="color:var(--text);">📅 Week</strong> tab
+  </div>`;
 }
 
-function toggleChore(id){
+function toggleChoreToday(id){
   const k=kid(); const c=k.chores.find(x=>x.id===id); if(!c)return;
-  c.done=!c.done;
-  if(c.done) playSound('tick');
+  if(!c.completions)c.completions={};
+  const today=todayISO();
+  if(c.type==='weekly'){
+    // Weekly: toggle a 'done' flag using today's date
+    const done=Object.values(c.completions).some(v=>v);
+    c.completions={};
+    if(!done) c.completions[today]=true;
+  } else {
+    c.completions[today]=!c.completions[today];
+    if(c.completions[today]) playSound('tick');
+  }
+  c.done=c.type==='weekly'?Object.values(c.completions).some(v=>v):!!c.completions[today];
   save(); renderChores(k); updatePayBtn();
 }
+
+function toggleChore(id){ toggleChoreToday(id); } // legacy redirect
 
 function deleteChore(id){const k=kid();k.chores=k.chores.filter(c=>c.id!==id);save();renderChores(k);updatePayBtn();}
 
@@ -1036,7 +1149,8 @@ function renderHistory(k){
 // ===== INVOICE PAYMENT FLOW =====
 function updatePayBtn(){
   const k=kid(); if(!k)return;
-  const earned=k.chores.filter(c=>c.done).reduce((s,c)=>s+c.sats,0);
+  const weekDays=getWeekDays(state.weekStart||toISODate(getMonday(new Date())));
+  const earned=k.chores.reduce((s,c)=>s+calcTaskEarnings(c,weekDays),0);
   const btn=document.getElementById('pay-btn');
   const box=document.getElementById('invoice-box');
   if(earned===0){
@@ -1064,7 +1178,8 @@ function handlePayBtn(){
 
 function generateInvoice(){
   const k=kid();
-  const earned=k.chores.filter(c=>c.done).reduce((s,c)=>s+c.sats,0);
+  const weekDays=getWeekDays(state.weekStart||toISODate(getMonday(new Date())));
+  const earned=k.chores.reduce((s,c)=>s+calcTaskEarnings(c,weekDays),0);
   if(earned===0)return;
   invoiceStage=1;
   // fake QR
@@ -1094,7 +1209,8 @@ function generateQRPattern(){
 
 function triggerPayment(){
   const k=kid();
-  const earned=k.chores.filter(c=>c.done).reduce((s,c)=>s+c.sats,0);
+  const weekDays=getWeekDays(state.weekStart||toISODate(getMonday(new Date())));
+  const earned=k.chores.reduce((s,c)=>s+calcTaskEarnings(c,weekDays),0);
   if(earned===0)return;
   invoiceStage=2; updatePayBtn();
   const overlay=document.getElementById('pay-overlay');
@@ -1644,27 +1760,136 @@ function saveGoal(){
   save(); closeModal('add-goal-modal'); renderGoals(k);
 }
 
-let choreRecurring = false;
-function toggleChoreRecurring(){
-  choreRecurring = !choreRecurring;
-  const tog = document.getElementById('chore-recurring-toggle');
-  if(tog) tog.classList.toggle('on', choreRecurring);
+let choreType='daily', choreSchedule='daily', choreCustomDays=[], choreOfferChallenge=true;
+
+function selectTaskType(type){
+  choreType=type;
+  document.getElementById('type-btn-daily').classList.toggle('active',type==='daily');
+  document.getElementById('type-btn-weekly').classList.toggle('active',type==='weekly');
+  document.getElementById('chore-schedule-section').style.display=type==='daily'?'block':'none';
+  document.getElementById('chore-weekly-section').style.display=type==='weekly'?'block':'none';
 }
+
+function selectSchedule(sched){
+  choreSchedule=sched;
+  ['daily','weekdays','custom'].forEach(s=>{
+    document.getElementById('sched-btn-'+s).classList.toggle('active',s===sched);
+  });
+  document.getElementById('custom-days-section').style.display=sched==='custom'?'block':'none';
+}
+
+function toggleCustomDay(day){
+  const idx=choreCustomDays.indexOf(day);
+  if(idx>-1) choreCustomDays.splice(idx,1); else choreCustomDays.push(day);
+  document.querySelectorAll('#custom-days-picker .curr-btn').forEach(b=>{
+    b.classList.toggle('active', choreCustomDays.includes(parseInt(b.dataset.day)));
+  });
+}
+
+function toggleChallengeOffer(){
+  choreOfferChallenge=!choreOfferChallenge;
+  document.getElementById('chore-challenge-toggle').classList.toggle('on',choreOfferChallenge);
+}
+
 function openAddChoreModal(){
+  editingChoreId=null;
+  document.querySelector('#add-chore-modal .modal-title').textContent='Add a task';
   document.getElementById('chore-name-input').value='';
-  document.getElementById('chore-sats-input').value='';
-  choreRecurring = false;
-  const tog = document.getElementById('chore-recurring-toggle');
-  if(tog) tog.classList.remove('on');
+  document.getElementById('chore-sats-input').value='50';
+  document.getElementById('chore-sats-weekly-input').value='300';
+  choreType='daily'; choreSchedule='daily'; choreCustomDays=[]; choreOfferChallenge=true;
+  selectTaskType('daily'); selectSchedule('daily');
+  document.getElementById('chore-challenge-toggle').classList.add('on');
+  // Populate copy-to section
+  const others=state.kids.filter(k=>k.id!==currentKidId);
+  const copySection=document.getElementById('copy-to-section');
+  const copyKids=document.getElementById('copy-to-kids');
+  copySection.style.display=others.length?'block':'none';
+  copyKids.innerHTML=others.map(k=>
+    `<button class="curr-btn" data-kid="${k.id}" onclick="this.classList.toggle('active')">${k.avatar} ${k.name}</button>`
+  ).join('');
   openModal('add-chore-modal');
+}
+
+function editChore(id){
+  const k=kid();
+  const c=k.chores.find(x=>x.id===id);
+  if(!c)return;
+  // Set up modal fresh WITHOUT calling openAddChoreModal (which resets editingChoreId)
+  choreType='daily'; choreSchedule='daily'; choreCustomDays=[]; choreOfferChallenge=true;
+  selectTaskType('daily'); selectSchedule('daily');
+  document.getElementById('chore-sats-input').value='50';
+  document.getElementById('chore-sats-weekly-input').value='300';
+  document.getElementById('chore-name-input').value='';
+  const others=state.kids.filter(x=>x.id!==currentKidId);
+  document.getElementById('copy-to-section').style.display='none'; // hide copy when editing
+  openModal('add-chore-modal');
+  // Now set editingChoreId AFTER modal is open
+  editingChoreId=id;
+  document.querySelector('#add-chore-modal .modal-title').textContent='Edit task';
+  // Pre-fill values
+  document.getElementById('chore-name-input').value=c.name;
+  const isWeekly=c.type==='weekly';
+  selectTaskType(isWeekly?'weekly':'daily');
+  if(!isWeekly){
+    const sched=c.schedule||'daily';
+    selectSchedule(sched);
+    if(sched==='custom'){
+      choreCustomDays=[...(c.days||[])];
+      document.querySelectorAll('#custom-days-picker .curr-btn').forEach(b=>{
+        b.classList.toggle('active',choreCustomDays.includes(parseInt(b.dataset.day)));
+      });
+    }
+    document.getElementById('chore-sats-input').value=c.sats;
+    choreOfferChallenge=c.offerChallenge!==false;
+    document.getElementById('chore-challenge-toggle').classList.toggle('on',choreOfferChallenge);
+  } else {
+    document.getElementById('chore-sats-weekly-input').value=c.sats;
+  }
 }
 
 function saveChore(){
   const name=document.getElementById('chore-name-input').value.trim();
-  const sats=parseInt(document.getElementById('chore-sats-input').value);
+  const isWeekly=choreType==='weekly';
+  const satsEl=isWeekly?'chore-sats-weekly-input':'chore-sats-input';
+  const sats=parseInt(document.getElementById(satsEl).value);
   if(!name||!sats||sats<=0)return;
+  const days=choreSchedule==='daily'?[0,1,2,3,4,5,6]:
+             choreSchedule==='weekdays'?[0,1,2,3,4]:
+             [...choreCustomDays].sort();
+  const newTask={
+    id:'c'+Date.now(),name,sats,
+    type:choreType,
+    schedule:isWeekly?'weekly':choreSchedule,
+    days,
+    allOrNothing:isWeekly,
+    offerChallenge:isWeekly?false:choreOfferChallenge,
+    challengeActive:false,
+    completions:{},
+    recurring:true,
+    done:false // legacy compat
+  };
   const k=kid();
-  k.chores.push({id:'c'+Date.now(),name,sats,done:false,recurring:choreRecurring});
+  if(editingChoreId){
+    // Edit existing — update in place, preserve completions and challengeActive
+    const idx=k.chores.findIndex(x=>x.id===editingChoreId);
+    if(idx>-1){
+      const existing=k.chores[idx];
+      k.chores[idx]={...newTask, id:editingChoreId,
+        completions:existing.completions||{},
+        challengeActive:existing.challengeActive||false,
+        done:existing.done||false};
+    }
+    editingChoreId=null;
+  } else {
+    // New task
+    k.chores.push({...newTask});
+    // Copy to selected other kids
+    document.querySelectorAll('#copy-to-kids .curr-btn.active').forEach(btn=>{
+      const other=state.kids.find(x=>x.id===btn.dataset.kid);
+      if(other) other.chores.push({...newTask,id:'c'+Date.now()+Math.random()});
+    });
+  }
   save(); closeModal('add-chore-modal'); renderChores(k); updatePayBtn();
 }
 
@@ -1786,6 +2011,514 @@ function resetAll(){
 }
 
 
+
+// ===== WEEK UTILITIES =====
+function getMonday(date){
+  // Parse as local time if string (avoids UTC midnight timezone bug)
+  const d=typeof date==='string'?new Date(date+'T00:00:00'):new Date(date);
+  d.setHours(0,0,0,0);
+  const day=d.getDay(); // 0=Sun,1=Mon,...,6=Sat
+  // Distance back to Monday: Sun->6, Mon->0, Tue->1...
+  const diff=day===0?6:day-1;
+  d.setDate(d.getDate()-diff);
+  return d;
+}
+function toISODate(date){
+  // Use LOCAL date parts — toISOString() returns UTC which breaks timezone-offset countries
+  const y=date.getFullYear();
+  const m=String(date.getMonth()+1).padStart(2,'0');
+  const d=String(date.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+d;
+}
+function todayISO(){ return toISODate(new Date()); }
+
+function getCurrentWeekStart(){
+  // Initialise weekStart if not set
+  if(!state.weekStart){
+    state.weekStart=toISODate(getMonday(new Date()));
+    save();
+  }
+  return new Date(state.weekStart+'T00:00:00');
+}
+
+function getWeekDays(weekStartISO){
+  // Returns array of 7 ISO date strings Mon-Sun for given week
+  const start=new Date(weekStartISO+'T00:00:00');
+  return Array.from({length:7},(_,i)=>{
+    const d=new Date(start);
+    d.setDate(d.getDate()+i);
+    return toISODate(d);
+  });
+}
+
+function getDayIndex(isoDate){
+  // Returns 0=Mon...6=Sun (our internal convention)
+  const d=new Date(isoDate+'T00:00:00');
+  return (d.getDay()+6)%7;
+}
+
+function isTaskDueOnDay(task, isoDate){
+  if(task.type==='weekly') return true; // weekly tasks show all week
+  const dayIdx=getDayIndex(isoDate); // 0=Mon...6=Sun
+  if(task.schedule==='daily') return true;
+  if(task.schedule==='weekdays') return dayIdx<5;
+  if(task.schedule==='custom') return task.days.includes(dayIdx);
+  return false;
+}
+
+function getDayName(isoDate, short=true){
+  const d=new Date(isoDate);
+  return d.toLocaleDateString('en-GB',{weekday:short?'short':'long'});
+}
+
+function calcTaskEarnings(task, weekDays){
+  if(task.type==='weekly'){
+    const done=task.completions&&Object.values(task.completions).some(v=>v);
+    return done?task.sats:0;
+  }
+  // daily
+  const dueDays=weekDays.filter(d=>isTaskDueOnDay(task,d));
+  const doneDays=dueDays.filter(d=>task.completions&&task.completions[d]);
+  if(task.challengeActive){
+    // all or nothing 2x
+    return doneDays.length===dueDays.length?task.sats*dueDays.length*2:0;
+  }
+  return doneDays.length*task.sats;
+}
+
+function calcKidWeeklyEarnings(kid){
+  const weekDays=getWeekDays(getCurrentWeekStart());
+  return kid.chores.reduce((sum,t)=>sum+calcTaskEarnings(t,weekDays),0);
+}
+
+function advanceWeekIfNeeded(){
+  const ws=getCurrentWeekStart(); // already local time
+  const nextMon=new Date(ws); nextMon.setDate(nextMon.getDate()+7);
+  const today=new Date(); today.setHours(0,0,0,0);
+  if(today>=nextMon){
+    // Skip weeks until we reach the current one
+    let cur=new Date(ws);
+    while(true){
+      cur.setDate(cur.getDate()+7);
+      const next=new Date(cur); next.setDate(next.getDate()+7);
+      if(today<next) break;
+    }
+    state.weekStart=toISODate(cur);
+    save();
+  }
+}
+
+
+// ===== CALENDAR =====
+function renderCalendar(){
+  const k=kid(); if(!k)return;
+  const ws=state.weekStart||toISODate(getMonday(new Date()));
+  const weekDays=getWeekDays(ws);
+  const today=todayISO();
+  const el=document.getElementById('week-calendar');
+  if(!el)return;
+
+  const wStart=new Date(ws);
+  const wEnd=new Date(weekDays[6]);
+  const label=wStart.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+
+    ' – '+wEnd.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+
+  let html=`<div style="font-size:12px;color:var(--text3);margin-bottom:12px;font-weight:600;">${label}</div>`;
+
+  // ── WEEKLY TASKS SECTION (top) ──
+  const weeklyTasks=k.chores.filter(c=>c.type==='weekly');
+  if(weeklyTasks.length){
+    html+=`<div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">📅 Weekly tasks</div>`;
+    html+=weeklyTasks.map(c=>{
+      const done=c.completions&&Object.values(c.completions).some(v=>v);
+      const canTick=state.parentMode||true; // kids can tick weekly tasks too
+      return `<div class="cal-task-row" onclick="toggleChoreWeekly('${c.id}')" style="background:var(--card);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:6px;cursor:pointer;">
+        <div class="cal-task-check ${done?'done':''}">${done?'✓':''}</div>
+        <div class="cal-task-name" style="font-weight:600;">${c.name}</div>
+        <div class="cal-task-sats">+${fmtSats(c.sats)}</div>
+      </div>`;
+    }).join('');
+    html+=`<div style="height:1px;background:var(--bg3);margin:12px 0;"></div>`;
+  }
+
+  // ── DAILY TASKS BY DAY ──
+  const dailyTasks=k.chores.filter(c=>c.type!=='weekly');
+  if(dailyTasks.length){
+    html+=`<div style="font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">⚡ Daily tasks</div>`;
+    weekDays.forEach(dateISO=>{
+      const dayName=getDayName(dateISO,false);
+      const isToday=dateISO===today;
+      const isFuture=dateISO>today;
+      const dueTasks=dailyTasks.filter(c=>isTaskDueOnDay(c,dateISO));
+      if(!dueTasks.length)return; // skip days with no daily tasks
+      const doneTasks=dueTasks.filter(c=>c.completions&&c.completions[dateISO]);
+      const allDone=doneTasks.length===dueTasks.length;
+      const summaryIcon=isFuture?'⏳':allDone?'✅':doneTasks.length===0?'❌':'🔸';
+      html+=`<div class="cal-day">
+        <div class="cal-day-header" onclick="toggleCalDay('cal-${dateISO}')">
+          <div class="cal-day-name ${isToday?'today':''}">${dayName}${isToday?' · today':''}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="cal-day-summary">${doneTasks.length}/${dueTasks.length}</div>
+            <span>${summaryIcon}</span>
+            <span style="color:var(--text3);font-size:12px;">▾</span>
+          </div>
+        </div>
+        <div class="cal-day-tasks" id="cal-${dateISO}">
+          ${dueTasks.map(c=>{
+            const done=c.completions&&c.completions[dateISO];
+            const sats=c.sats*(c.challengeActive?2:1);
+            return `<div class="cal-task-row" onclick="toggleChoreOnDay('${c.id}','${dateISO}')" style="cursor:pointer;">
+              <div class="cal-task-check ${done?'done':''}">${done?'✓':''}</div>
+              <div class="cal-task-name">${c.name}${c.challengeActive?' 🎯':''}</div>
+              <div class="cal-task-sats">+${fmtSats(sats)}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    });
+  }
+
+  if(!weeklyTasks.length&&!dailyTasks.length){
+    html+=`<div class="empty-state"><span class="empty-state-icon">📅</span><div class="empty-state-text">No tasks yet — add some in the Tasks tab</div></div>`;
+  }
+
+  el.innerHTML=html;
+  // Auto-open today
+  const todayEl=document.getElementById('cal-'+today);
+  if(todayEl) todayEl.classList.add('open');
+}
+
+function toggleChoreWeekly(choreId){
+  const k=kid(); const c=k.chores.find(x=>x.id===choreId); if(!c)return;
+  if(!c.completions)c.completions={};
+  const done=Object.values(c.completions).some(v=>v);
+  c.completions={};
+  if(!done){ c.completions[todayISO()]=true; playSound('tick'); }
+  c.done=!done;
+  save(); renderCalendar(); renderChores(k); updatePayBtn();
+}
+
+function toggleCalDay(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.toggle('open');
+}
+
+function toggleChoreOnDay(choreId, dateISO){
+  const k=kid(); const c=k.chores.find(x=>x.id===choreId); if(!c)return;
+  if(!c.completions)c.completions={};
+  if(c.type==='weekly'){
+    const done=Object.values(c.completions).some(v=>v);
+    c.completions={}; if(!done)c.completions[dateISO]=true;
+  } else {
+    c.completions[dateISO]=!c.completions[dateISO];
+    if(c.completions[dateISO]) playSound('tick');
+  }
+  c.done=c.type==='weekly'?Object.values(c.completions).some(v=>v):!!c.completions[todayISO()];
+  save(); renderCalendar(); renderChores(k); updatePayBtn();
+}
+
+// ===== WEEKLY REVIEW WIZARD =====
+let reviewStep=0, reviewKidIdx=0, reviewKidOrder=[], reviewPayments={};
+
+function startWeeklyReview(){
+  if(!state.parentMode){alert('Turn on parent mode first.');return;}
+  advanceWeekIfNeeded();
+  reviewStep=0; reviewKidIdx=0;
+  reviewKidOrder=[...state.kids];
+  reviewPayments={};
+  document.getElementById('review-overlay').classList.add('active');
+  renderReviewStep();
+}
+
+function renderReviewStep(){
+  const overlay=document.getElementById('review-overlay');
+  const content=document.getElementById('review-content');
+  const ws=state.weekStart||toISODate(getMonday(new Date()));
+  const weekDays=getWeekDays(ws);
+  const wStart=new Date(ws);
+  const wEnd=new Date(weekDays[6]);
+  const weekLabel=wStart.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+
+    ' – '+wEnd.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+
+  if(reviewStep===0){
+    // Step 1: Summary
+    const rows=reviewKidOrder.map(k=>{
+      const earned=calcKidWeeklyEarnings(k);
+      const total=k.chores.length;
+      const done=k.chores.filter(c=>c.type==='weekly'?
+        (c.completions&&Object.values(c.completions).some(v=>v)):
+        weekDays.some(d=>isTaskDueOnDay(c,d)&&c.completions&&c.completions[d])).length;
+      return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);border-radius:10px;margin-bottom:8px;">
+        <span style="font-size:28px;">${k.avatar}</span>
+        <div style="flex:1;">
+          <div style="font-weight:700;">${k.name}</div>
+          <div style="font-size:12px;color:var(--text2);">${done}/${total} tasks completed</div>
+        </div>
+        <div style="font-family:'Space Mono',monospace;color:var(--accent);font-weight:700;">${fmtSats(earned)} sats</div>
+      </div>`;
+    }).join('');
+    content.innerHTML=`
+      <div style="font-size:22px;font-weight:900;margin-bottom:4px;">📋 Weekly Review</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">${weekLabel}</div>
+      ${rows}
+      <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:10px;font-size:13px;color:var(--text2);">
+        We'll go through each child in turn. You can correct any ticks, then pay.
+      </div>`;
+    document.getElementById('review-back-btn').style.display='none';
+    document.getElementById('review-next-btn').textContent="Let's go →";
+  }
+  else if(reviewStep===1){
+    // Step 2: Per-child review
+    const k=reviewKidOrder[reviewKidIdx];
+    const weeklyTasks=k.chores.filter(c=>c.type==='weekly');
+    const dailyTasks=k.chores.filter(c=>c.type==='daily');
+    const earned=calcKidWeeklyEarnings(k);
+    const fiat=satsToGbp(earned);
+
+    let dailyHtml='';
+    if(dailyTasks.length){
+      dailyHtml=`<div class="section-title" style="margin-top:16px;">Daily tasks</div>`;
+      weekDays.forEach(dateISO=>{
+        const due=dailyTasks.filter(c=>isTaskDueOnDay(c,dateISO));
+        if(!due.length)return;
+        dailyHtml+=`<div style="margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:4px;">${getDayName(dateISO,false).toUpperCase()}</div>
+          ${due.map(c=>{
+            const done=c.completions&&c.completions[dateISO];
+            return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border-radius:8px;margin-bottom:4px;cursor:pointer;" onclick="toggleReviewDay('${k.id}','${c.id}','${dateISO}')">
+              <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${done?'var(--green2)':'var(--text3)'};background:${done?'var(--green2)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:11px;color:white;">${done?'✓':''}</div>
+              <div style="flex:1;font-size:13px;">${c.name}${c.challengeActive?' 🎯 2×':''}</div>
+              <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);">+${fmtSats(c.sats*(c.challengeActive?2:1))}</div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      });
+    }
+
+    let weeklyHtml='';
+    if(weeklyTasks.length){
+      weeklyHtml=`<div class="section-title" style="margin-top:16px;">Weekly tasks</div>`;
+      weeklyHtml+=weeklyTasks.map(c=>{
+        const done=c.completions&&Object.values(c.completions).some(v=>v);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:6px;cursor:pointer;" onclick="toggleReviewWeekly('${k.id}','${c.id}')">
+          <div style="width:24px;height:24px;border-radius:50%;border:2px solid ${done?'var(--green2)':'var(--text3)'};background:${done?'var(--green2)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:13px;color:white;">${done?'✓':''}</div>
+          <div style="flex:1;font-weight:600;">${c.name}</div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;color:${done?'var(--green)':'var(--text3)'};">${done?'+'+fmtSats(c.sats):'—'}</div>
+        </div>`;
+      }).join('');
+    }
+
+    content.innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <span style="font-size:40px;">${k.avatar}</span>
+        <div>
+          <div style="font-size:20px;font-weight:900;">${k.name}</div>
+          <div style="font-size:12px;color:var(--text2);">Correct any ticks if needed</div>
+        </div>
+      </div>
+      ${weeklyHtml}${dailyHtml}
+      <div style="margin-top:16px;background:var(--card);border-radius:var(--radius-sm);padding:14px;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">This week's earnings</div>
+        <div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--accent);">${fmtSats(earned)} sats</div>
+        ${fiat?`<div style="font-size:13px;color:var(--text2);">≈ £${fiat.toFixed(2)}</div>`:''}
+      </div>`;
+    document.getElementById('review-back-btn').style.display='block';
+    document.getElementById('review-next-btn').textContent=`Pay ${fmtSats(earned)} sats →`;
+  }
+  else if(reviewStep===2){
+    // Step 3: Pay this child + challenge opt-in for NEXT week
+    const k=reviewKidOrder[reviewKidIdx];
+    const weekDays2=getWeekDays(ws);
+    const earned=calcKidWeeklyEarnings(k);
+    const challengeTasks=k.chores.filter(c=>c.type==='daily'&&c.offerChallenge);
+
+    let challengeHtml='';
+    if(challengeTasks.length){
+      challengeHtml=`<div style="margin-top:16px;padding:14px;background:rgba(247,147,26,.08);border:1px solid var(--glow);border-radius:var(--radius-sm);">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px;">🎯 ${k.name}, take a challenge next week?</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Complete every day for 2× sats — miss one day and you get nothing for that task.</div>
+        ${challengeTasks.map(c=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:6px;">
+            <div style="font-size:13px;font-weight:600;">${c.name}</div>
+            <div style="display:flex;gap:6px;">
+              <button class="curr-btn ${c.challengeNext?'active':''}" id="chal-yes-${c.id}" onclick="setChallengeNext('${k.id}','${c.id}',true)" style="font-size:12px;padding:4px 10px;">Yes 🔥</button>
+              <button class="curr-btn ${!c.challengeNext?'active':''}" id="chal-no-${c.id}" onclick="setChallengeNext('${k.id}','${c.id}',false)" style="font-size:12px;padding:4px 10px;">No</button>
+            </div>
+          </div>`).join('')}
+      </div>`;
+    }
+
+    content.innerHTML=`
+      <div style="text-align:center;margin-bottom:20px;">
+        <span style="font-size:48px;">${k.avatar}</span>
+        <div style="font-size:20px;font-weight:900;margin-top:8px;">Pay ${k.name}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:32px;font-weight:700;color:var(--accent);margin-top:4px;">${fmtSats(earned)} sats</div>
+        ${satsToGbp(earned)?`<div style="font-size:14px;color:var(--text2);">≈ £${satsToGbp(earned).toFixed(2)}</div>`:''}
+      </div>
+      ${challengeHtml}
+      <button class="pay-btn stage-pay" style="width:100%;margin-top:16px;" onclick="reviewPayKid()">⚡ Pay ${fmtSats(earned)} sats now</button>`;
+    document.getElementById('review-next-btn').style.display='none';
+    document.getElementById('review-back-btn').style.display='block';
+  }
+  else if(reviewStep===3){
+    // Final step: new week summary
+    const nextWs=new Date(state.weekStart);
+    nextWs.setDate(nextWs.getDate()+7);
+    const nextWeekDays=getWeekDays(toISODate(nextWs));
+    const challenges=state.kids.flatMap(k=>
+      k.chores.filter(c=>c.challengeActive).map(c=>({kid:k,task:c}))
+    );
+    content.innerHTML=`
+      <div style="text-align:center;margin-bottom:20px;">
+        <span style="font-size:52px;display:block;animation:pulse-bolt 1.5s ease-in-out infinite;">🚀</span>
+        <div style="font-size:22px;font-weight:900;margin-top:12px;">New week started!</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:4px;">Great work everyone</div>
+      </div>
+      ${challenges.length?`<div style="background:rgba(247,147,26,.08);border:1px solid var(--glow);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px;">🎯 Challenges this week</div>
+        ${challenges.map(({kid,task})=>`
+          <div style="font-size:13px;padding:4px 0;color:var(--text2);">${kid.avatar} ${kid.name}: <strong style="color:var(--text);">${task.name}</strong> — ${fmtSats(task.sats*2)} sats or nothing!</div>
+        `).join('')}
+      </div>`:''}
+      <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:14px;font-size:13px;color:var(--text2);">
+        ${state.kids.map(k=>`${k.avatar} ${k.name}: <strong style="color:var(--accent);">${fmtSats(k.balance)} sats</strong>`).join(' · ')}
+      </div>`;
+    document.getElementById('review-next-btn').textContent='Done ✓';
+    document.getElementById('review-next-btn').style.display='block';
+    document.getElementById('review-back-btn').style.display='none';
+  }
+}
+
+function toggleReviewDay(kidId, choreId, dateISO){
+  const k=state.kids.find(x=>x.id===kidId);
+  const c=k?.chores.find(x=>x.id===choreId);
+  if(!c)return;
+  if(!c.completions)c.completions={};
+  c.completions[dateISO]=!c.completions[dateISO];
+  save(); renderReviewStep();
+}
+
+function toggleReviewWeekly(kidId, choreId){
+  const k=state.kids.find(x=>x.id===kidId);
+  const c=k?.chores.find(x=>x.id===choreId);
+  if(!c)return;
+  if(!c.completions)c.completions={};
+  const done=Object.values(c.completions).some(v=>v);
+  c.completions={}; if(!done)c.completions[todayISO()]=true;
+  c.done=!done; save(); renderReviewStep();
+}
+
+function setChallengeNext(kidId, choreId, val){
+  const k=state.kids.find(x=>x.id===kidId);
+  const c=k?.chores.find(x=>x.id===choreId);
+  if(!c)return;
+  c.challengeNext=val;
+  document.getElementById('chal-yes-'+choreId)?.classList.toggle('active',val);
+  document.getElementById('chal-no-'+choreId)?.classList.toggle('active',!val);
+}
+
+function reviewPayKid(){
+  const k=reviewKidOrder[reviewKidIdx];
+  const weekDays=getWeekDays(state.weekStart||toISODate(getMonday(new Date())));
+  const earned=calcKidWeeklyEarnings(k);
+  // Store payment amount
+  reviewPayments[k.id]=earned;
+  // Trigger payment animation
+  if(earned>0){
+    // Credit balance
+    k.balance+=earned; k.totalEarned+=earned; k.streak=(k.streak||0)+1;
+    if(!k.firstEarnedPrice&&btcPriceGbp)k.firstEarnedPrice=btcPriceGbp;
+    k.history.push({id:'h'+Date.now(),type:'earn',
+      desc:'Week ending '+new Date(weekDays[6]).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),
+      sats:earned,date:Date.now(),priceThen:btcPriceGbp||null});
+    state.parentWalletSats=Math.max(0,state.parentWalletSats-earned);
+    if(!state.parentWalletHistory)state.parentWalletHistory=[];
+    state.parentWalletHistory.push({date:Date.now(),desc:'Paid '+k.name,sats:earned});
+    save();
+    // Show mini payment flash then advance
+    showReviewPayAnimation(k, earned);
+  } else {
+    advanceReviewKid();
+  }
+}
+
+function showReviewPayAnimation(k, earned){
+  const overlay=document.getElementById('pay-overlay');
+  document.getElementById('pay-stage-connecting').style.display='block';
+  document.getElementById('pay-anim-center').style.display='none';
+  document.getElementById('pay-route-target').textContent=k.avatar;
+  overlay.classList.add('active');
+  const msgs=['Connecting…','Routing…','Confirming…'];
+  let mi=0;
+  const iv=setInterval(()=>{ document.getElementById('connect-text').textContent=msgs[mi=(mi+1)%msgs.length]; },500);
+  setTimeout(()=>{
+    clearInterval(iv);
+    document.getElementById('pay-stage-connecting').style.display='none';
+    const sc=document.getElementById('pay-anim-center');
+    sc.style.display='block';
+    document.getElementById('pay-anim-amount').textContent=fmtSats(earned);
+    document.getElementById('pay-anim-label').textContent='sats for '+k.name+'!';
+    const f=satsToGbp(earned);
+    document.getElementById('pay-anim-sub').textContent=f?'About £'+f.toFixed(2):'Keep stacking!';
+    playSound('pay');
+    const emojis=['⚡','⚡','₿','⚡','✨'];
+    for(let i=0;i<16;i++) setTimeout(()=>{
+      const p=document.createElement('div');
+      p.className='sat-particle';
+      p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      p.style.cssText=`left:${Math.random()*100}vw;top:-30px;animation-duration:${0.8+Math.random()*0.6}s;`;
+      overlay.appendChild(p); setTimeout(()=>p.remove(),1500);
+    },i*50);
+  },1500);
+  setTimeout(()=>{
+    overlay.classList.remove('active');
+    document.getElementById('pay-anim-center').style.display='none';
+    advanceReviewKid();
+  },3500);
+}
+
+function advanceReviewKid(){
+  reviewKidIdx++;
+  if(reviewKidIdx<reviewKidOrder.length){
+    reviewStep=1; renderReviewStep();
+  } else {
+    // All kids paid — advance week
+    advanceWeek(); reviewStep=3; renderReviewStep();
+  }
+}
+
+function advanceWeek(){
+  const ws=new Date(state.weekStart||toISODate(getMonday(new Date())));
+  ws.setDate(ws.getDate()+7);
+  state.weekStart=toISODate(ws);
+  // Clear completions, apply challenge flags
+  state.kids.forEach(k=>{
+    k.chores.forEach(c=>{
+      c.completions={};
+      c.done=false;
+      if(c.type==='daily'){
+        c.challengeActive=c.challengeNext||false;
+        c.challengeNext=false;
+      }
+    });
+  });
+  save();
+}
+
+function reviewNext(){
+  if(reviewStep===0){ reviewStep=1; renderReviewStep(); }
+  else if(reviewStep===3){ closeReview(); }
+}
+function reviewBack(){
+  if(reviewStep===1&&reviewKidIdx>0){ reviewKidIdx--; renderReviewStep(); }
+  else if(reviewStep===1&&reviewKidIdx===0){ reviewStep=0; renderReviewStep(); }
+  else if(reviewStep===2){ reviewStep=1; renderReviewStep(); }
+}
+function closeReview(){
+  document.getElementById('review-overlay').classList.remove('active');
+  renderHome();
+}
+
 // ===== SOUND ENGINE (Web Audio API — no external files) =====
 let audioCtx = null;
 function getAudio(){
@@ -1850,8 +2583,50 @@ function playSound(type){
   }catch(e){}
 }
 
+
+// ===== LEGACY TASK MIGRATION =====
+function migrateLegacyTasks(){
+  let changed=false;
+  // Always recalculate weekStart as the Monday of the current week
+  // This ignores any stale/wrong stored value and is always correct
+  {
+    const correctMonday=toISODate(getMonday(new Date()));
+    if(state.weekStart!==correctMonday){
+      state.weekStart=correctMonday;
+      changed=true;
+    }
+  }
+  state.kids.forEach(k=>{
+    k.chores.forEach(c=>{
+      // If task is missing new fields, treat as weekly task
+      if(!c.type){
+        c.type='weekly';
+        c.schedule='weekly';
+        c.days=[0,1,2,3,4,5,6];
+        c.allOrNothing=true;
+        c.offerChallenge=false;
+        c.challengeActive=false;
+        c.challengeNext=false;
+        if(!c.completions) c.completions={};
+        c.recurring=true;
+        // Migrate old 'done' flag into completions
+        if(c.done&&Object.keys(c.completions).length===0){
+          c.completions[todayISO()]=true;
+        }
+        changed=true;
+      }
+      // Ensure all tasks have completions object
+      if(!c.completions){ c.completions={}; changed=true; }
+      if(c.recurring===undefined){ c.recurring=true; changed=true; }
+    });
+  });
+  if(changed) save();
+}
+
 // ===== INIT =====
 function init(){
+  migrateLegacyTasks();
+  advanceWeekIfNeeded();
   fetchPrice();
   setInterval(fetchPrice,60000);
   renderHome();
@@ -1872,6 +2647,19 @@ if(document.readyState==='loading'){
     <span id="spend-anim-amount" style="font-family:'Space Mono',monospace;font-size:42px;font-weight:700;color:var(--red);display:block;animation:amount-slide .4s ease .3s both;"></span>
     <div id="spend-anim-label" style="font-size:18px;font-weight:700;color:var(--text);animation:amount-slide .4s ease .5s both;margin-top:6px;"></div>
     <div id="spend-anim-sub" style="font-size:13px;color:var(--text2);animation:amount-slide .4s ease .65s both;margin-top:4px;"></div>
+  </div>
+</div>
+
+<!-- WEEKLY REVIEW OVERLAY -->
+<div class="modal-overlay" id="review-overlay" style="align-items:center;padding:20px;">
+  <div class="modal-sheet" style="border-radius:24px;max-width:520px;max-height:85vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <div id="review-content" style="padding-bottom:8px;"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="modal-btn-sec" id="review-back-btn" onclick="reviewBack()" style="flex:1;display:none;">← Back</button>
+      <button class="modal-btn" id="review-next-btn" onclick="reviewNext()" style="flex:2;">Next →</button>
+    </div>
+    <button class="modal-btn-sec" onclick="closeReview()" style="margin-top:8px;">✕ Close review</button>
   </div>
 </div>
 <!-- ONBOARDING MODAL -->
