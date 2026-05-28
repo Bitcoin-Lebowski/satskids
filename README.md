@@ -38,24 +38,27 @@ No Wi-Fi needed to use the app (though the live BTC price ticker requires an int
 ## Features
 
 ### For kids
-- Personal wallet with sat balance and live £/$ equivalent
-- Weekly task checklist — tick off tasks during the week
-- Savings goals — enter what they're saving for and the cost in GBP, USD, EUR, THB, or sats directly, converts to sats at today's live price
-- "How many weeks to reach my goal?" calculator
+- Personal wallet with sat balance and live £ equivalent
+- Week view — Mon–Sun grid showing daily and weekly tasks, tick off completions each day
+- Tasks tab — see all tasks, schedule, and this week's progress at a glance
+- Savings goals — enter cost in GBP, USD, EUR, THB, or sats directly, converts at live price
+- "How many weeks to reach my goal?" calculator on the Goals tab
 - Transaction history
-- Bitcoin Stacking tracker — see current value vs. when first earned, gain/loss
-- Future projections at 25% annual growth (clearly labelled as illustrative)
+- Bitcoin Stacking tracker — current value vs when first earned, gain/loss, future projections
 - Spend tracker — record purchases and deduct from balance
 - Streak counter with animated flame that grows with consecutive weeks
 - Badges for milestones
 
 ### For parents
 - PIN-protected parent mode
-- Add, edit and delete tasks per child
-- Set sat amounts per task
-- Recurring tasks — automatically untick on weekly reset, never deleted
-- Weekly reset button — clears completed one-off tasks, resets recurring ones
-- Invoice flow — generates a fake Lightning invoice QR, then triggers payment animation
+- Add, edit and delete tasks per child — in parent mode only
+- Daily tasks (priced per day completed) and weekly tasks (done or not done)
+- Task scheduling — every day, weekdays only, or custom days
+- Recurring tasks — survive weekly reset automatically
+- Optional 2× challenge — kids can opt in for double sats or nothing on daily tasks
+- Copy a task to other kids in one tap when creating
+- Weekly review wizard — guided Sunday flow, per-child correction, payment, challenge opt-in for next week
+- Invoice flow — generates a fake Lightning invoice QR, then triggers the payment animation
 - Parent demo wallet (10,000,000 sats) showing live conversions and price scenarios
 - Export and import backup (JSON file)
 
