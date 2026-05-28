@@ -237,6 +237,8 @@ body::before{content:'';position:fixed;inset:0;background-image:
 /* BADGES */
 .streak-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#ff9800,#ff5722);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;color:white;margin-bottom:16px;}
 .badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.curr-btn{background:var(--bg3);border:1px solid var(--text3);border-radius:20px;padding:6px 12px;color:var(--text2);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;}
+.curr-btn.active{background:var(--accent);border-color:var(--accent);color:#0d0d1a;}
 .badge{background:var(--bg3);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:5px;}
 .badge.earned{background:rgba(247,147,26,.15);color:var(--accent);border:1px solid var(--glow);}
 .streak-flame{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;animation:fadeUp .4s ease;}
@@ -550,8 +552,18 @@ body::before{content:'';position:fixed;inset:0;background-image:
     <div class="modal-title">New savings goal 🎯</div>
     <div class="field"><label>What are you saving for?</label><input type="text" id="goal-name-input" placeholder="e.g. New Lego set" maxlength="40"></div>
     <div class="field"><label>Pick an emoji</label><div class="emoji-picker" id="goal-emoji-picker"></div></div>
-    <div class="field"><label>Cost in £</label><input type="number" id="goal-cost-input" placeholder="e.g. 25.00" min="0.01" step="0.01"></div>
-    <div class="info-box">≈ <strong id="goal-sats-preview" style="color:var(--accent);font-family:'Space Mono',monospace;">—</strong> sats at today's price</div>
+    <div class="field">
+      <label>Enter cost in</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="goal-currency-picker">
+        <button class="curr-btn active" data-curr="GBP" onclick="selectGoalCurrency('GBP')">£ GBP</button>
+        <button class="curr-btn" data-curr="USD" onclick="selectGoalCurrency('USD')">$ USD</button>
+        <button class="curr-btn" data-curr="EUR" onclick="selectGoalCurrency('EUR')">€ EUR</button>
+        <button class="curr-btn" data-curr="THB" onclick="selectGoalCurrency('THB')">฿ THB</button>
+        <button class="curr-btn" data-curr="SATS" onclick="selectGoalCurrency('SATS')">⚡ Sats</button>
+      </div>
+    </div>
+    <div class="field"><label id="goal-cost-label">Cost in GBP (£)</label><input type="number" id="goal-cost-input" placeholder="e.g. 25.00" min="0.01" step="0.01"></div>
+    <div class="info-box" id="goal-preview-box">≈ <strong id="goal-sats-preview" style="color:var(--accent);font-family:'Space Mono',monospace;">—</strong> sats at today's price</div>
     <button class="modal-btn" onclick="saveGoal()">Set goal ⚡</button>
     <button class="modal-btn-sec" onclick="closeModal('add-goal-modal')">Cancel</button>
   </div>
@@ -618,7 +630,7 @@ const DEFAULT_STATE = {
 };
 
 let state = JSON.parse(localStorage.getItem('satskids_v2')||'null') || JSON.parse(JSON.stringify(DEFAULT_STATE));
-let currentKidId=null, btcPriceGbp=null, btcPriceUsd=null;
+let currentKidId=null, btcPriceGbp=null, btcPriceUsd=null, btcPriceEur=null, btcPriceTHB=null;
 let selectedAvatar='🦊', selectedGoalEmoji='🎮';
 let invoiceStage=0; // 0=idle,1=generated,2=paying
 let currentSpendGoalId=null;
@@ -634,10 +646,10 @@ async function fetchPrice(){
   // Source 1: CoinGecko
   if(!fetched){
     try{
-      const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=gbp,usd&include_24hr_change=true',{signal:AbortSignal.timeout(5000)});
+      const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=gbp,usd,eur,thb&include_24hr_change=true',{signal:AbortSignal.timeout(5000)});
       const d=await r.json();
       if(d?.bitcoin?.gbp){
-        btcPriceGbp=d.bitcoin.gbp; btcPriceUsd=d.bitcoin.usd;
+        btcPriceGbp=d.bitcoin.gbp; btcPriceUsd=d.bitcoin.usd; btcPriceEur=d.bitcoin.eur; btcPriceTHB=d.bitcoin.thb;
         const ch=d.bitcoin.gbp_24h_change||0;
         setTicker('£'+btcPriceGbp.toLocaleString(), ch, true);
         fetched=true;
@@ -648,14 +660,17 @@ async function fetchPrice(){
   // Source 2: Coinbase
   if(!fetched){
     try{
-      const [gbpR,usdR]=await Promise.all([
+      const [gbpR,usdR,eurR]=await Promise.all([
         fetch('https://api.coinbase.com/v2/prices/BTC-GBP/spot',{signal:AbortSignal.timeout(5000)}),
         fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot',{signal:AbortSignal.timeout(5000)}),
+        fetch('https://api.coinbase.com/v2/prices/BTC-EUR/spot',{signal:AbortSignal.timeout(5000)}),
       ]);
-      const [gbpD,usdD]=await Promise.all([gbpR.json(),usdR.json()]);
+      const [gbpD,usdD,eurD]=await Promise.all([gbpR.json(),usdR.json(),eurR.json()]);
       if(gbpD?.data?.amount){
         btcPriceGbp=parseFloat(gbpD.data.amount);
         btcPriceUsd=parseFloat(usdD.data.amount);
+        btcPriceEur=parseFloat(eurD.data.amount);
+        btcPriceTHB=btcPriceUsd*35.5; // approximate USD/THB if CoinGecko failed
         setTicker('£'+btcPriceGbp.toLocaleString(), null, true);
         fetched=true;
       }
@@ -668,7 +683,7 @@ async function fetchPrice(){
       const r=await fetch('https://blockchain.info/ticker',{signal:AbortSignal.timeout(5000)});
       const d=await r.json();
       if(d?.GBP?.last){
-        btcPriceGbp=d.GBP.last; btcPriceUsd=d.USD?.last||btcPriceGbp*1.27;
+        btcPriceGbp=d.GBP.last; btcPriceUsd=d.USD?.last||btcPriceGbp*1.27; btcPriceEur=d.EUR?.last||btcPriceGbp*1.17; btcPriceTHB=d.USD?.last?d.USD.last*35.5:btcPriceGbp*45;
         setTicker('£'+btcPriceGbp.toLocaleString(), null, true);
         fetched=true;
       }
@@ -698,8 +713,32 @@ function setTicker(priceStr, change, isLive){
     ce.className='ticker-change up';
   }
 }
+// Currency config
+const CURRENCIES = {
+  GBP: { symbol:'£', name:'GBP', price:()=>btcPriceGbp },
+  USD: { symbol:'$', name:'USD', price:()=>btcPriceUsd },
+  EUR: { symbol:'€', name:'EUR', price:()=>btcPriceEur },
+  THB: { symbol:'฿', name:'THB', price:()=>btcPriceTHB },
+  SATS:{ symbol:'', name:'sats', price:()=>null },
+};
+
 function satsToGbp(s){return btcPriceGbp?(s/1e8)*btcPriceGbp:null;}
 function gbpToSats(g){return btcPriceGbp?Math.round((g/btcPriceGbp)*1e8):null;}
+
+function satsToFiat(sats, currency){
+  const p=CURRENCIES[currency]?.price();
+  return p?(sats/1e8)*p:null;
+}
+function fiatToSats(amount, currency){
+  const p=CURRENCIES[currency]?.price();
+  return p?Math.round((amount/p)*1e8):null;
+}
+function fmtCurrency(amount, currency){
+  const c=CURRENCIES[currency];
+  if(!c)return amount.toLocaleString();
+  if(currency==='THB') return '฿'+Math.round(amount).toLocaleString();
+  return c.symbol+amount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
 function fmtSats(n){return Math.round(n).toLocaleString();}
 function fmtGbp(v,sign=false){return (sign&&v>0?'+':'')+'£'+Math.abs(v).toFixed(2);}
 function fmtFiat(sats){
@@ -921,17 +960,34 @@ function renderGoals(k){
   const el=document.getElementById('goals-list');
   if(!k.goals.length){el.innerHTML=`<div class="empty-state"><span class="empty-state-icon">🎯</span><div class="empty-state-text">No goals yet! What are you saving for?</div></div>`;return;}
   el.innerHTML=k.goals.map(g=>{
-    const target=btcPriceGbp?gbpToSats(g.costGbp):g.targetSats||10000;
+    // Support both old (costGbp) and new (costDisplay/costCurrency) format
+    let target=g.targetSats||10000;
+    if(g.costCurrency&&g.costCurrency!=='SATS'){
+      const live=fiatToSats(g.costDisplay,g.costCurrency);
+      if(live)target=live; // update target with live price
+    } else if(!g.costCurrency&&g.costGbp&&btcPriceGbp){
+      target=gbpToSats(g.costGbp)||target;
+    }
     const pct=Math.min(100,Math.round((k.balance/target)*100));
     const remaining=Math.max(0,target-k.balance);
     const reached=remaining===0;
+    // Format cost display
+    let costStr='';
+    if(g.costCurrency==='SATS'){
+      costStr=fmtSats(g.costDisplay)+' sats';
+    } else if(g.costCurrency&&CURRENCIES[g.costCurrency]){
+      const c=CURRENCIES[g.costCurrency];
+      costStr=fmtCurrency(g.costDisplay,g.costCurrency)+' '+g.costCurrency;
+    } else if(g.costGbp){
+      costStr='£'+g.costGbp.toFixed(2);
+    }
     return `<div class="goal-card">
       <div class="goal-header">
         <div>
           <div class="goal-name">${g.emoji} ${g.name}</div>
           <div class="goal-amounts">
             <span class="goal-sats-needed">${fmtSats(target)} sats</span>
-            <span> · £${g.costGbp.toFixed(2)} · ${reached?'🎉 Goal reached!':fmtSats(remaining)+' to go'}</span>
+            <span> · ${costStr} · ${reached?'🎉 Goal reached!':fmtSats(remaining)+' to go'}</span>
           </div>
         </div>
         ${state.parentMode?`<button class="del-btn" onclick="deleteGoal('${g.id}')">✕</button>`:''}
@@ -1504,11 +1560,53 @@ function saveNewKid(){
   save(); closeModal('add-kid-modal'); renderHome();
 }
 
+let selectedGoalCurrency='GBP';
+function selectGoalCurrency(curr){
+  selectedGoalCurrency=curr;
+  document.querySelectorAll('#goal-currency-picker .curr-btn').forEach(b=>
+    b.classList.toggle('active', b.dataset.curr===curr));
+  const c=CURRENCIES[curr];
+  const isSats=curr==='SATS';
+  document.getElementById('goal-cost-label').textContent=isSats?'Target in sats':`Cost in ${c.name} (${c.symbol||'⚡'})`;
+  document.getElementById('goal-cost-input').placeholder=isSats?'e.g. 5000':'e.g. 25.00';
+  document.getElementById('goal-cost-input').step=isSats?'1':'0.01';
+  updateGoalPreview();
+}
+
+function updateGoalPreview(){
+  const val=parseFloat(document.getElementById('goal-cost-input').value);
+  const prev=document.getElementById('goal-sats-preview');
+  const box=document.getElementById('goal-preview-box');
+  if(!val||val<=0){prev.textContent='—';return;}
+  if(selectedGoalCurrency==='SATS'){
+    prev.textContent=fmtSats(val)+' sats';
+    box.innerHTML='Target: <strong style="color:var(--accent);font-family:monospace;">'+fmtSats(val)+'</strong> sats';
+    return;
+  }
+  const sats=fiatToSats(val,selectedGoalCurrency);
+  const c=CURRENCIES[selectedGoalCurrency];
+  if(sats){
+    prev.textContent=fmtSats(sats)+' sats';
+    box.innerHTML='≈ <strong style="color:var(--accent);font-family:monospace;">'+fmtSats(sats)+'</strong> sats at today\'s price';
+  } else {
+    prev.textContent='—';
+    box.innerHTML='Price unavailable';
+  }
+}
+
 function openAddGoalModal(){
   document.getElementById('goal-name-input').value='';
   document.getElementById('goal-cost-input').value='';
   document.getElementById('goal-sats-preview').textContent='—';
+  selectedGoalCurrency='GBP';
   selectedGoalEmoji='🎮';
+  // Reset currency buttons
+  document.querySelectorAll('#goal-currency-picker .curr-btn').forEach(b=>
+    b.classList.toggle('active', b.dataset.curr==='GBP'));
+  document.getElementById('goal-cost-label').textContent='Cost in GBP (£)';
+  document.getElementById('goal-cost-input').placeholder='e.g. 25.00';
+  document.getElementById('goal-cost-input').step='0.01';
+  document.getElementById('goal-preview-box').innerHTML='≈ <strong id="goal-sats-preview" style="color:var(--accent);font-family:monospace;">—</strong> sats at today\'s price';
   const ges=['🎮','🎯','🏆','🚀','🎸','🎨','🏄','🎁','🧸','🎲','🚂','🦖','🎪','🌍','📚','⚽','🎭','🍕','🎂','🏕️'];
   document.getElementById('goal-emoji-picker').innerHTML=ges.map(e=>
     `<button class="emoji-opt${e===selectedGoalEmoji?' selected':''}" data-emoji="${e}">${e}</button>`).join('');
@@ -1518,11 +1616,7 @@ function openAddGoalModal(){
     selectedGoalEmoji=btn.dataset.emoji;
     document.querySelectorAll('#goal-emoji-picker .emoji-opt').forEach(b=>b.classList.toggle('selected',b===btn));
   };
-  document.getElementById('goal-cost-input').oninput=function(){
-    const g=parseFloat(this.value);
-    if(g&&btcPriceGbp)document.getElementById('goal-sats-preview').textContent=fmtSats(gbpToSats(g))+' sats';
-    else document.getElementById('goal-sats-preview').textContent='—';
-  };
+  document.getElementById('goal-cost-input').oninput=updateGoalPreview;
   openModal('add-goal-modal');
 }
 
@@ -1530,10 +1624,23 @@ function pickGoalEmoji(e){selectedGoalEmoji=e;document.querySelectorAll('#goal-e
 
 function saveGoal(){
   const name=document.getElementById('goal-name-input').value.trim();
-  const costGbp=parseFloat(document.getElementById('goal-cost-input').value);
-  if(!name||!costGbp||costGbp<=0)return;
+  const val=parseFloat(document.getElementById('goal-cost-input').value);
+  if(!name||!val||val<=0)return;
   const k=kid();
-  k.goals.push({id:'g'+Date.now(),name,emoji:selectedGoalEmoji,costGbp,targetSats:btcPriceGbp?gbpToSats(costGbp):0,createdAt:Date.now()});
+  let targetSats, costDisplay, costCurrency;
+  if(selectedGoalCurrency==='SATS'){
+    targetSats=Math.round(val);
+    costDisplay=val;
+    costCurrency='SATS';
+  } else {
+    targetSats=fiatToSats(val,selectedGoalCurrency)||Math.round(val*1500);
+    costDisplay=val;
+    costCurrency=selectedGoalCurrency;
+  }
+  k.goals.push({id:'g'+Date.now(),name,emoji:selectedGoalEmoji,
+    costDisplay,costCurrency,
+    costGbp:costCurrency==='GBP'?val:null, // keep for backwards compat
+    targetSats,createdAt:Date.now()});
   save(); closeModal('add-goal-modal'); renderGoals(k);
 }
 
